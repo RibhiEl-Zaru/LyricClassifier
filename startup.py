@@ -1,4 +1,5 @@
 import song
+import loaddata
 from loadsongs import *
 from classifier import *
 from nHotEncoder import *
@@ -6,14 +7,15 @@ from preProcessingUtil import *
 
 #This file provides some basic code to get started with.
 
-folder = 'data/larkin1000_v2' #Replace with a folder of .pkl files containg Song objects
+folder = 'data/test' #Replace with a folder of .pkl files containg Song objects
 
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
 #NOTE: this code takes a very long time to run. If you would like to try it out, we suggest running it overnight.
 #It also creates a .txt file containing info for each song, and a log file to store output.
-#loadDataFromAlbums(getLarkin1000(), folder, folder + '.txt', folder + '.log')
+loaddata.loadDataFromAlbums(loaddata.getLarkin1000(), folder, folder + '.txt', folder + '.log')
 
+'''
 #load songs variable with 500 Song objects, using random cluster sampling
 songs = load(folder, song.GENRES)
 songs = clusteredSample(songs, 500, song.GENRES)
@@ -47,3 +49,5 @@ model.fit(np.array(data), np.array(nhotLabels), n_epoch=20, batch_size=50, show_
 
 #returns a probabilty distribution over each of our possible genres
 print model.predict(np.array([data[0]]))
+
+'''

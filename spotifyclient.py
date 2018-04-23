@@ -38,6 +38,4 @@ def getArtistGenres(artist_name, genres):
 
     if len(matches) == 0:
         return None
-
-    print("matches: ", matches)
     return matches

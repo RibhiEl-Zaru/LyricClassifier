@@ -40,7 +40,7 @@ def getRS500():
 def getLarkin1000():
 #Returns a dictionary of album: artist pairs
 #Sourced from: http://www.rocklistmusic.co.uk/virgin_1000_v3.htm
-    f = open('Larkin1000.txt')
+    f = open('test.txt')
     lines = f.readlines()
     albums = {}
     for line in lines:
@@ -108,7 +108,9 @@ def getTracklistLyrics(tracknames, artist, f=None):
             continue
         if f:
             f.write('\t\tGetting ' + track + '...\n')
-        songs.append(webscraper.getSong(track, artist))
+        song = webscraper.getSong(track, artist)
+        songs.append(song)
+
     return songs
 
 def lensort(a):

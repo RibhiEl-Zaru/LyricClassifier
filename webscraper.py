@@ -39,11 +39,8 @@ def getSong(song_title='', artist_name ='', genres = [], notfound = 'ignore'):
             break
     #it looked like the strings were in bitwise format so I decoded them
     if song_info:
-        #print(song_title.decode('utf-8'))
         song_api_path = song_info["result"]["api_path"]
-# <<<<<<< HEAD
-#         return Song(lyrics_from_song_api_path(song_api_path).decode('utf-8'), song_title.decode('utf-8'), artist_name.decode('utf-8'))
-# =======
-        return Song(lyrics_from_song_api_path(song_api_path), genres, str(song_title), str(artist_name), notfound)
+        toRet = Song(lyrics_from_song_api_path(song_api_path), genres, str(song_title), str(artist_name), notfound)
+        return toRet
     else:
         return None

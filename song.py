@@ -23,8 +23,7 @@ class Song(object):
             title: string containing song title (optional)
             artist: string containing primary artist (optional)
     """
-
-    def __init__(self, lyrics, title='', artist='', notfound='ignore'):
+    def __init__(self, lyrics,genres, title='', artist='', notfound='ignore'):
     #Constructor takes in local variables and option if genre is not found thru Spotify client
         self.lyrics = lyrics
         self.title = title.replace('\n', '')

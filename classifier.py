@@ -1,3 +1,5 @@
+'''
+
 import tflearn
 import tensorflow as tf
 from tflearn.layers.conv import conv_1d, max_pool_1d, global_max_pool
@@ -53,3 +55,5 @@ def encodeAndTrain(tfidfs, poss, labels, epochs, tfidfencoder, posencoder, batch
     model = modelBuilder(len(tfidfs[0]), 10)
     model.fit(np.array(newTensors), labels, n_epoch=epochs, show_metric=True, batch_size=batch)
     return model
+
+'''
