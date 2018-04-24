@@ -23,7 +23,7 @@ class Song(object):
             title: string containing song title (optional)
             artist: string containing primary artist (optional)
     """
-    def __init__(self, lyrics,genres, title='', artist='', notfound='ignore'):
+    def __init__(self, lyrics,genres, title='', artist='', popularity = 0, notfound='ignore'):
     #Constructor takes in local variables and option if genre is not found thru Spotify client
         self.lyrics = lyrics
         self.title = title.replace('\n', '')
@@ -31,9 +31,11 @@ class Song(object):
         self.genres = genres if notfound=='add' else []
 
         self.genres = genres if (notfound=='replace' or notfound=='add') else []
+        self.popularity = popularity
+
 
         if len(genres)==0 or notfound=='add':
-            artistgenres = spotifyclient.getArtistGenres(self.artist, GENRES)
+            (artistgenres, popularity) = spotifyclient.getArtistProperties(self.artist, GENRES)
             if artistgenres:
                 for g in artistgenres:
                     self.genres.append(g)

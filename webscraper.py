@@ -23,7 +23,7 @@ def lyrics_from_song_api_path(song_api_path):
     lyrics = html.find("div", class_ = "lyrics").get_text() #updated css where the lyrics are based in HTML
     return lyrics
 
-def getSong(song_title='', artist_name ='', genres = [], notfound = 'ignore'):
+def getSong(song_title='', artist_name ='', genres = [], popularity = 0, notfound = 'ignore'):
 #Returns Song object based on the search results for the song title,
 #choosing the first result with the artist_name in the full artist string
     search_url = base_url + "/search"
@@ -40,7 +40,7 @@ def getSong(song_title='', artist_name ='', genres = [], notfound = 'ignore'):
     #it looked like the strings were in bitwise format so I decoded them
     if song_info:
         song_api_path = song_info["result"]["api_path"]
-        toRet = Song(lyrics_from_song_api_path(song_api_path), genres, str(song_title), str(artist_name), notfound)
+        toRet = Song(lyrics_from_song_api_path(song_api_path), genres, str(song_title), str(artist_name), popularity, notfound)
         return toRet
     else:
         return None

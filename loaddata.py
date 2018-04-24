@@ -37,10 +37,10 @@ def getRS500():
         albums[title] = artist
     return albums
 
-def getLarkin1000():
+def getLarkin1000(folder):
 #Returns a dictionary of album: artist pairs
 #Sourced from: http://www.rocklistmusic.co.uk/virgin_1000_v3.htm
-    f = open('test.txt')
+    f = open(folder +".txt")
     lines = f.readlines()
     albums = {}
     for line in lines:
@@ -67,13 +67,13 @@ def getMillionSubset():
                 albums[title] = artist
                 h5.close()
             except:
-                print'Missed a file...'
+                print('Missed a file...')
     return albums
 
-def getAlbumTracks(album, artist):
+def getAlbumDetails(album, artist):
 #Takes in an album/artist pair and returns a list of Song objects
 #Requires artist to be an exact substring of Spotify's data
-    genres = spotifyclient.getArtistGenres(artist, song.GENRES)
+    (genres, popularity) = spotifyclient.getArtistProperties(artist, song.GENRES)
     client_credentials_manager = SpotifyClientCredentials(clientid, secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     sp.trace=False
@@ -97,9 +97,9 @@ def getAlbumTracks(album, artist):
             name = name[:name.index('-')]
         if name not in tracknames:
             tracknames.append(name)
-    return tracknames
+    return (tracknames, popularity)
 
-def getTracklistLyrics(tracknames, artist, f=None):
+def getTracklistLyrics(tracknames, artist, popularity, f=None):
 #takes in a list of tracknames with a common artist, and
 #returns a list of song objects
     songs = []
@@ -108,7 +108,7 @@ def getTracklistLyrics(tracknames, artist, f=None):
             continue
         if f:
             f.write('\t\tGetting ' + track + '...\n')
-        song = webscraper.getSong(track, artist)
+        song = webscraper.getSong(track, artist, popularity = popularity)
         songs.append(song)
 
     return songs
@@ -139,10 +139,12 @@ def loadDataFromAlbums(albums, destinationfolder, songlist, logfile, droppedfile
             artistwords = albums[album].split(' ')
             artistwords = lensort(artistwords)
             for word in artistwords:
-                tracks = getAlbumTracks(album, albums[album])
+                (tracks, popularity) = getAlbumDetails(album, albums[album])
                 if tracks:
                     log.write('\tFinding song lyrics...\n')
-                    tracks = getTracklistLyrics(tracks, word, log)
+                    tracks = getTracklistLyrics(tracks, word, popularity, log)
+                    for track in tracks:
+                        print (track)
                     fragment = word
                     break
             if not tracks:
@@ -164,11 +166,13 @@ def loadDataFromAlbums(albums, destinationfolder, songlist, logfile, droppedfile
                     track.saveSong(name+'.pkl', destinationfolder)
                     f.write(track.title + ', ' + (fragment if fragment else albums[album]) + '\n')
                     num_tracks += 1
-                except Exception:
+                except Exception as e:
+                    print(e)
                     dropped += 1
             log.write('\t' + ('*' if dropped>0 else '') + 'Dropped ' + str(dropped) + ' tracks, out of ' + str(len(tracks)) + '\n')
             log.write('\tDone.\n')
-        except Exception:
+        except Exception as e:
+            print(e)
             d.write(album + ', ' + albums[album] + '\n')
     log.write('Saved ' + str(num_tracks) + ' tracks.\n')
     log.close()
@@ -200,7 +204,7 @@ def loadDataFromSongs(songmetas, destinationfolder, songlist, logfile, droppedfi
                 artist = artist[:artist.index('feat.')-1]
             log.write(title+' by '+artist+'...('+str(count)+' of '+str(total)+')'+'\n')
             log.write('\tFetching genres...')
-            g = spotifyclient.getArtistGenres(artist, [])
+            (g, popularity) = spotifyclient.getArtistProperties(artist, [])
             if g:
                 log.write('found '+str(len(g))+' \n')
                 if len(g)==0:
@@ -212,7 +216,7 @@ def loadDataFromSongs(songmetas, destinationfolder, songlist, logfile, droppedfi
                 continue
             log.write('\tFinding lyrics...\n')
             for word in artist.split(' '):
-                song = webscraper.getSong(title, word, genres=g, notfound='replace')
+                song = webscraper.getSong(title, word, genres=g, popularity=popularity, notfound='replace')
                 if song:
                     fragment = word
                     break

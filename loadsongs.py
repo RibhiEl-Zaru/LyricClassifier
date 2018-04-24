@@ -46,6 +46,7 @@ def save(listfile, destinationfolder):
 def load(folder, genres=[]):
 #Takes in a folder and returns a list of Song objects from the .pkl files it contains
     songs = []
+    print(songs)
     try:
         for f in os.listdir(folder):
             if f.endswith('.pkl'):
