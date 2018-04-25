@@ -4,6 +4,7 @@ import requests
 import locale
 from bs4 import BeautifulSoup
 from song import Song
+import spotifyclient
 
 #Do not change!
 base_url = "http://api.genius.com"
@@ -23,7 +24,7 @@ def lyrics_from_song_api_path(song_api_path):
     lyrics = html.find("div", class_ = "lyrics").get_text() #updated css where the lyrics are based in HTML
     return lyrics
 
-def getSong(song_title='', artist_name ='', genres = [], popularity = 0, notfound = 'ignore'):
+def getSong(song_title='', artist_name ='', genres = [], notfound = 'ignore'):
 #Returns Song object based on the search results for the song title,
 #choosing the first result with the artist_name in the full artist string
     search_url = base_url + "/search"
@@ -37,10 +38,13 @@ def getSong(song_title='', artist_name ='', genres = [], popularity = 0, notfoun
             song_title = hit["result"]["title"]
             artist_name = hit["result"]["primary_artist"]["name"]
             break
+
+
     #it looked like the strings were in bitwise format so I decoded them
+    songDetails = spotifyclient.getSongProperties(song_title, artist_name)
     if song_info:
         song_api_path = song_info["result"]["api_path"]
-        toRet = Song(lyrics_from_song_api_path(song_api_path), genres, str(song_title), str(artist_name), popularity, notfound)
+        toRet = Song(lyrics_from_song_api_path(song_api_path), genres, str(song_title), str(artist_name), songDetails['popularity'], songDetails['duration_ms'], notfound)
         return toRet
     else:
         return None

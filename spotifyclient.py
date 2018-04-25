@@ -38,7 +38,7 @@ def getArtistProperties(artist_name, genres):
 
     if len(matches) == 0:
         matches = None
-    return (matches,popularity)
+    return matches
 
 
 def getAlbumProperties(album_name):
@@ -49,16 +49,21 @@ def getAlbumProperties(album_name):
     return results
 
 
-def getSongProperties(song_name):
+def getSongProperties(song_name, artist_name):
     client_credentials_manager = SpotifyClientCredentials(clientid, secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     sp.trace=False
-    results = sp.search(q=song_name, limit=1, type='track')
-    items = results['tracks']['items'][0]
-    duration = items['duration_ms']
-    popularity = items['popularity']
-
-    toRet = {"duration": duration, "popularity" : popularity}
-
-
+    results = sp.search(q=song_name, limit=10, type='track')
+    tracks = results['tracks']['items']
+    toRet = None
+    for item in tracks:
+        artists = item['artists']
+        for artistInfo in artists:
+            if(artist_name.lower() in artistInfo['name'].lower()):
+                duration = item['duration_ms']
+                popularity = item['popularity']
+                toRet = {"duration_ms": duration, "popularity" : popularity}
+                break
+        if toRet != None:
+            break
     return toRet
