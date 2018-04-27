@@ -46,7 +46,6 @@ def save(listfile, destinationfolder):
 def load(folder, genres=[]):
 #Takes in a folder and returns a list of Song objects from the .pkl files it contains
     songs = []
-    print(songs)
     try:
         for f in os.listdir(folder):
             if f.endswith('.pkl'):
@@ -73,7 +72,7 @@ def clusteredSample(songs, n, genres):
 
     d = {}
     for s in songs:
-        for genre in s.genres: 
+        for genre in s.genres:
             s.filter(genres)
         for genre in s.genres:
             if genre in d.keys():

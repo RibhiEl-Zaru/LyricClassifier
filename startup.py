@@ -32,30 +32,39 @@ genreNums = [0 for i in range(len(GENRES))]
 
 songs = load(folder, GENRES)
 total = 0
-for s in songs:
+
+for s in songs: #Populate the various buckets
     total += 1
     numGenres = 0
     for i in range(len(GENRES)):
         genre = GENRES[i]
         if genre in s.genres:
-            counts[i]+= 1
-            numGenres += 1
+            counts[i]+= 1 #Update how many of genre X songs there are
+            numGenres += 1 #Keeps track of number of genres for each song
 
-    genreNums[numGenres] += 1
-
-
+    genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
     #print(s.title, 'by', s.artist+':',s.genres, " with popularity ", s.popularity, s.duration_ms)
 
-print(counts)
-print(total)
-print(sum(counts))
-percentages = [str(round(i/total * 100 , 4)) + "%" for i in counts]
-print(percentages)
+'''
 
-print(genreNums)
+                        DETAILS OF GENERATED LISTS
+
+    percentages : The chance that a random song is of each genre, as ordered by index shown in GENRES list.
+
+    binomialProbab : output of function in preProcessingUtil.py.
+
+                     Returns the true chance of correctly guessing the genre of a song,
+                     factoring in that each song has a different amount of "correct" genres
+
+'''
+
+percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
+
+for i in range(len(percentages)):
+    print("Data is : " + str(percentages[i])  + "% " + GENRES[i] )
+
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
-
 print("True random success rate is: ", round(binomialProbab,4))
 
 
