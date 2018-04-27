@@ -18,3 +18,16 @@ def vectorize(tokenizedList, rang):
     tfidfVectorizer = TfidfVectorizer(ngram_range=(1, rang), stop_words='english', analyzer='word')
     vector = tfidfVectorizer.fit_transform(tokenizedList).todense()
     return vector
+
+
+def generateRandomProbability(genreNums, GENRES):
+    total = sum(genreNums)
+    print(total)
+    binomialProbab = 0.0
+
+    for i in range(len(genreNums)):
+        if(genreNums[i] != 0):
+            trueBernouilliChance = ((genreNums[i]/total)*(i * genreNums[i]))/(len(GENRES) * genreNums[i])
+            binomialProbab = binomialProbab + trueBernouilliChance
+
+    return binomialProbab

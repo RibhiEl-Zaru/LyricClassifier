@@ -9,7 +9,18 @@ import spotifyclient
 #This file provides some basic code to get started with.
 
 folder = 'data/1001Albums' #Replace with a folder of .pkl files containg Song objects
+GENRES = [
+'pop',
+'rap',
+'rock',
+'r&b',
+'country',
+'jazz',
+'electronic',
+]
+counts = [0 for i in range(len(GENRES))]
 
+genreNums = [0 for i in range(len(GENRES))]
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
 #NOTE: this code takes a very long time to run. If you would like to try it out, we suggest running it overnight.
@@ -19,14 +30,38 @@ folder = 'data/1001Albums' #Replace with a folder of .pkl files containg Song ob
 #load songs variable with 500 Song objects, using random cluster sampling
 
 
-songs = load(folder, song.GENRES)
-
+songs = load(folder, GENRES)
+total = 0
 for s in songs:
-    print(s.title, 'by', s.artist+':',s.genres, " with popularity ", s.popularity, s.duration_ms)
+    total += 1
+    numGenres = 0
+    for i in range(len(GENRES)):
+        genre = GENRES[i]
+        if genre in s.genres:
+            counts[i]+= 1
+            numGenres += 1
 
-'''
+    genreNums[numGenres] += 1
+
+
+    #print(s.title, 'by', s.artist+':',s.genres, " with popularity ", s.popularity, s.duration_ms)
+
+print(counts)
+print(total)
+print(sum(counts))
+percentages = [str(round(i/total * 100 , 4)) + "%" for i in counts]
+print(percentages)
+
+print(genreNums)
+
+binomialProbab = generateRandomProbability(genreNums, GENRES)
+
+print("True random success rate is: ", round(binomialProbab,4))
+
+
 songs = clusteredSample(songs, 500, song.GENRES)
-
+#print((songs[:20]))
+'''
 for s in songs[:10]:
     print(s.title, 'by', s.artist+':',s.genres)
     print(s.lyrics)
