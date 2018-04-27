@@ -27,6 +27,7 @@ def lyrics_from_song_api_path(song_api_path):
 def getSong(song_title='', artist_name ='', genres = [], notfound = 'ignore'):
 #Returns Song object based on the search results for the song title,
 #choosing the first result with the artist_name in the full artist string
+    #print("webscrape info: ", song_title, artist_name, genres)
     search_url = base_url + "/search"
     params = {'q': song_title + " " + artist_name}
     response = requests.get(search_url, params=params, headers=headers)
@@ -36,12 +37,13 @@ def getSong(song_title='', artist_name ='', genres = [], notfound = 'ignore'):
         if artist_name.lower() in hit["result"]["primary_artist"]["name"].lower(): #requires artist_name is substring of Genius's artist name
             song_info = hit
             song_title = hit["result"]["title"]
-            artist_name = hit["result"]["primary_artist"]["name"]
+            artist_name = artist_name.lower()
             break
 
 
     #it looked like the strings were in bitwise format so I decoded them
     songDetails = spotifyclient.getSongProperties(song_title, artist_name)
+    #print(songDetails, song_info)
     if song_info:
         song_api_path = song_info["result"]["api_path"]
         toRet = Song(lyrics_from_song_api_path(song_api_path), genres, str(song_title), str(artist_name), songDetails['popularity'], songDetails['duration_ms'], notfound)

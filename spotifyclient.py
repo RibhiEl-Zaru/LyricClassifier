@@ -9,9 +9,9 @@ clientid = '80c0be28d7c244148044c27a87653074'
 secret = '3b7ff2e371174bd8891b51744c06488f'
 
 def getArtistProperties(artist_name, genres):
-#Takes in a string for artist name and list of allowed genres
-#Returns relevant genres for the first result in a search for the artist,
-#and None if the search is unsuccessful
+    #Takes in a string for artist name and list of allowed genres
+    #Returns relevant genres for the first result in a search for the artist,
+    #and None if the search is unsuccessful
     client_credentials_manager = SpotifyClientCredentials(clientid, secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     sp.trace=False
@@ -50,10 +50,11 @@ def getAlbumProperties(album_name):
 
 
 def getSongProperties(song_name, artist_name):
+    #print("Song Properites search:", song_name, artist_name)
     client_credentials_manager = SpotifyClientCredentials(clientid, secret)
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     sp.trace=False
-    results = sp.search(q=song_name, limit=10, type='track')
+    results = sp.search(q=song_name + " " + artist_name, limit=20, type='track')
     tracks = results['tracks']['items']
     toRet = None
     for item in tracks:

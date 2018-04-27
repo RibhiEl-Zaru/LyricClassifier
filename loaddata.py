@@ -108,8 +108,15 @@ def getTracklistLyrics(tracknames, artist, f=None):
             continue
         if f:
             f.write('\t\tGetting ' + track + '...\n')
-        song = webscraper.getSong(song_title =track, artist_name = artist)
-        songs.append(song)
+        try:
+            song = webscraper.getSong(song_title =track, artist_name = artist)
+            songs.append(song)
+        except Exception as e:
+            print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+
     return songs
 
 def lensort(a):
