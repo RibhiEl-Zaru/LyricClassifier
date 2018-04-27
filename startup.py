@@ -69,15 +69,22 @@ print("True random success rate is: ", round(binomialProbab,4))
 
 
 songs = clusteredSample(songs, 500, song.GENRES)
-
-for s in songs[:10]:
-    print(s.title, 'by', s.artist+':',s.genres)
-    print(s.lyrics)
-print()
+#Print the info for the first 10 songs:
 
 
 '''
-#Print the info for the first 10 songs:
+for song in songs:
+    song.simpleLyrics()
+'''
+for s in songs[:10]:
+    print("TITLE:\t", s.title , "\nARTIST:\t", s.artist , "\nGENRES:\t", s.genres, "\nDURATION:\t", s.duration_ms, "\nPOPULARITY:\t", s.popularity)
+
+    print(s.lyrics[:10])
+    print("\n"*2)
+
+#lyricsList  = [song.simpleLyrics() for song in songs]
+#print(lyricsList[1])
+'''
 
 
 #Print the genre frequencies
@@ -88,7 +95,7 @@ genreDistribution(songs)
 
 # First, transform your song list into a list of simple lyrics stripped of punctuation
 # and auxilary characters
-lyricsList  = [song.simpleLyrics() for song in songs]
+
 
 #Vectorize using functions from preProcessUtil.py
 data = vectorize(lyricsList, 1).tolist()

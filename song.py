@@ -61,6 +61,8 @@ class Song(object):
     def tokens(self):
         return word_tokenize(self.simpleLyrics())
 #throws out all lyrics after mismatched bracket
+
+    #Must handle this to update self, and
     def  simpleLyrics(self):
     #Removes "[Chorus]", "[Verse X]", etc., punctuation, and newlines
         lyrics = self.lyrics.lower()
@@ -77,7 +79,7 @@ class Song(object):
             elif c in '\n\t':
                 simpleLyrics += ' '
             i+=1
-        return simpleLyrics
+        self.simpleLyrics =  "A"
 
     def tokenFrequencies(self):
     #Takes in a string of song lyrics and returns a dictionary containing

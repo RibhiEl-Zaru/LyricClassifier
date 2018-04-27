@@ -109,6 +109,8 @@ def convertPKLto2(folder, newfolder):
         pickle.dump(song, f, protocol=2)
     return 'Success'
 
+'''
+        Unused code of Shaan Bijwadia and Tiwalayo Eisape
 
 def genreDistribution(songs, genrelist=[]):
 #Takes in a list of songs and allowed genres
@@ -149,3 +151,6 @@ if __name__ == '__main__':
         path = 'songlist.txt'
     if path:
         save(path, sub)
+
+
+'''
