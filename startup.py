@@ -69,13 +69,14 @@ print("True random success rate is: ", round(binomialProbab,4))
 
 
 songs = clusteredSample(songs, 500, song.GENRES)
-#print((songs[:20]))
-'''
+
 for s in songs[:10]:
     print(s.title, 'by', s.artist+':',s.genres)
     print(s.lyrics)
 print()
 
+
+'''
 #Print the info for the first 10 songs:
 
 
