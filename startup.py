@@ -30,9 +30,13 @@ genreNums = [0 for i in range(len(GENRES))]
 #load songs variable with 500 Song objects, using random cluster sampling
 
 
-songs = load(folder, GENRES)
-total = 0
 
+
+
+songs = load(folder, GENRES)
+
+
+total = 0
 for s in songs: #Populate the various buckets
     total += 1
     numGenres = 0
@@ -58,6 +62,7 @@ for s in songs: #Populate the various buckets
 
 '''
 
+
 percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
 
 for i in range(len(percentages)):
@@ -69,18 +74,9 @@ print("True random success rate is: ", round(binomialProbab,4))
 
 
 songs = clusteredSample(songs, 500, song.GENRES)
-#Print the info for the first 10 songs:
 
 
-'''
-for song in songs:
-    song.simpleLyrics()
-'''
-for s in songs[:10]:
-    print("TITLE:\t", s.title , "\nARTIST:\t", s.artist , "\nGENRES:\t", s.genres, "\nDURATION:\t", s.duration_ms, "\nPOPULARITY:\t", s.popularity)
 
-    print(s.lyrics[:10])
-    print("\n"*2)
 
 #lyricsList  = [song.simpleLyrics() for song in songs]
 #print(lyricsList[1])

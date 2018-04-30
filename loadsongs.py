@@ -50,6 +50,7 @@ def load(folder, genres=[]):
         for f in os.listdir(folder):
             if f.endswith('.pkl'):
                 s = Song.openSong(os.path.join(folder, f))
+                s.processLyrics()
                 if len(genres)>0:
                     s.filter(genres)
                 if len(s.genres)>0:

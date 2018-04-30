@@ -2,6 +2,7 @@ import spotifyclient
 import pickle as pickle
 from nltk.tokenize import word_tokenize
 import os
+import nltk
 
 GENRES = [
 'pop',
@@ -22,6 +23,9 @@ class Song(object):
             genres: list containing genres
             title: string containing song title (optional)
             artist: string containing primary artist (optional)
+            numVerses: integer containing number of verses in song
+            numChoruses: integer containing number of choruses in song
+            numLines: integer containing number of lines in song
     """
     def __init__(self, lyrics,genres, title='', artist='', popularity = 0, duration_ms = 0, notfound='ignore'):
     #Constructor takes in local variables and option if genre is not found thru Spotify client
@@ -33,6 +37,9 @@ class Song(object):
         self.genres = genres if (notfound=='replace' or notfound=='add') else []
         self.popularity = popularity
         self.duration_ms = duration_ms
+        self.numVerses = 0
+        self.numLines = 0
+        self.numChoruses = 0
 
         if len(genres)==0 or notfound=='add':
             artistgenres = spotifyclient.getArtistProperties(self.artist, GENRES)
@@ -63,23 +70,44 @@ class Song(object):
 #throws out all lyrics after mismatched bracket
 
     #Must handle this to update self, and
-    def  simpleLyrics(self):
+    def  processLyrics(self):
     #Removes "[Chorus]", "[Verse X]", etc., punctuation, and newlines
+
+
+        self.numChoruses = 0
+        self.numVerses = 0
+        self.numLines = 0
         lyrics = self.lyrics.lower()
+
         i = 0
-        allowedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ '
+        allowedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ \''
         simpleLyrics = ''
+        #print("-------- ORIGINAL LYRICS --------")
+        #print(self.lyrics)
         while i < len(lyrics): #I think this is bad practice. w/e
             c = lyrics[i]
             if c in allowedChars:
                 simpleLyrics += c
-            elif c=='[':
+            if c=='[':
+                if lyrics[i+1].lower() == 'v':
+                    self.numVerses = self.numVerses + 1
+                elif lyrics[i+1].lower() == 'c':
+                    self.numChoruses = self.numChoruses + 1
+
                 while i<len(lyrics) and lyrics[i]!=']':
                     i +=1
-            elif c in '\n\t':
-                simpleLyrics += ' '
+            elif c == '\n':
+                self.numLines +=1
+                simpleLyrics += '\n'
+            elif c == '\t':
+                simpleLyrics += '\n'
+
             i+=1
-        self.simpleLyrics =  "A"
+
+        self.lyrics =  simpleLyrics
+
+        #print("-------- SIMPLE LYRICS --------")
+        #print(self.lyrics)
 
     def tokenFrequencies(self):
     #Takes in a string of song lyrics and returns a dictionary containing
