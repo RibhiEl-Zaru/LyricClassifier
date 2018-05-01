@@ -671,7 +671,6 @@ There's A Doctor, Who
 Go to the Mirror!, Who
 Tommy Can You Hear Me, Who
 Smash the Mirror, Who
-Sensation, Who
 Miracle Cure, Who
 Sally Simpson, Who
 I'm Free, Who
@@ -688,7 +687,6 @@ There's A Doctor, Who
 Go to the Mirror!, Who
 Tommy Can You Hear Me, Who
 Smash the Mirror, Who
-Sensation, Who
 Miracle Cure, Who
 Sally Simpson, Who
 I'm Free, Who
@@ -1238,7 +1236,7 @@ Excitable, Leppard
 Love And Affection, Leppard
 Tear It Down, Leppard
 I Wanna Be Your Hero, Leppard
-Gods Of War, Leppard
+Ride Into The Sun, Leppard
 Ring Of Fire, Leppard
 Billy's Got A Gun, Leppard
 Stagefright, Leppard
@@ -1632,6 +1630,7 @@ Night Rally, Costello
 Radio, Radio, Costello
 Shhh / Peaceful, Davis
 I Am The Sea, Who
+The Real Me, Who
 Quadrophenia, Who
 Cut My Hair, Who
 The Punk and the Godfather, Who
@@ -2193,10 +2192,9 @@ Wild Is the Wind, Bowie
 More than This, Music
 The Space Between, Music
 Avalon, Music
-Sonidos de la Naturaleza y música de la India, Music
 While My Heart Is Still Beating, Music
-The Main Thing, Music
 Take a Chance With Me, Music
+To Turn You On, Music
 My Little Girl, Music
 Pencil Skirt, Pulp
 Common People, Pulp
@@ -2411,6 +2409,7 @@ Mandolin Wind, Stewart
 (I Know) I'm Losing You, Stewart
 Find A Reason To Believe, Stewart
 Silence Kid, Pavement
+Elevate Me Later, Pavement
 Stop Breathin', Pavement
 Cut Your Hair, Pavement
 Newark Wilder, Pavement
@@ -3532,7 +3531,6 @@ Fortune Teller, Who
 Young Man Blues, Who
 Substitute, Who
 Happy Jack, Who
-I'm a Boy, Who
 A Quick One While He's Away, Who
 Amazing Journey/Sparks, Who
 Summertime Blues, Who
@@ -3904,19 +3902,6 @@ Genius Of Love ( Tom Tom Club ) - Live, Talking
 Girlfriend is Better, Talking
 Take Me to the River, Talking
 Crosseyed and Painless, Talking
-New Feeling, Talking
-Tentative Decisions, Talking
-Happy Day, Talking
-Who Is It?, Talking
-No Compassion, Talking
-The Book I Read, Talking
-Don't Worry About the Government, Talking
-First Week/Last Week...Carefree, Talking
-Psycho Killer, Talking
-Pulled Up, Talking
-I'm Not in Love, Talking
-I Wish You Wouldn't Say That, Talking
-Sugar on My Tongue, Talking
 Bathtub, Snoop
 G Funk Intro, Snoop
 Murder Was the Case, Snoop
@@ -4205,7 +4190,6 @@ My New House, Fall
 I am Damo Suzuki, Fall
 To Nkroachment: Yarbles, Fall
 Petty (Thief) Lout, Fall
-Cruiser's Creek, Fall
 Take It Easy, Jackson
 Our Lady of the Well, Jackson
 Colors of the Sun, Jackson
@@ -4271,6 +4255,7 @@ Cry To Me, Wailers
 Want More, Wailers
 Who The Cap Fit, Wailers
 Night Shift, Wailers
+War, Wailers
 Rat Race, Wailers
 Jah Live, Wailers
 I Ain't No Joke, Rakim
@@ -4298,6 +4283,7 @@ This Wheel's on Fire, Band
 I Shall Be Released, Band
 Yazoo Street Scandal, Band
 Katie's Been Gone, Band
+Night & Day, Band
 Long Distance Operator, Band
 Orange Juice Blues (Blues For Breakfast) (Outtake - Demo), Band
 Key to the Highway, Band
@@ -4411,6 +4397,7 @@ Rider in the Rain, Newman
 Kathleen (Catholicism Made Easier), Newman
 Old Man on the Farm, Newman
 Easy to Slip, Little
+Cold, Cold, Cold, Little
 Trouble, Little
 Medley: Cold Cold Cold / Tripe Face Boogie, Little
 Willin', Little
@@ -4431,10 +4418,13 @@ Testosterone, Bush
 Monkey, Bush
 Glycerine, Bush
 Alien, Bush
+Is It Too Late?, World
 Way Down Now, World
 When The Rainbow Comes, World
 Put The Message In The Box, World
 Ain't Gonna Come Till I'm Ready, World
+Take It Up, World
+Show Me To The Top, World
 Love Street, World
 Sweet Soul Dream, World
 Uncomplicated, Costello
@@ -4469,17 +4459,6 @@ Right, Bowie
 Somebody Up There Likes Me, Bowie
 Across the Universe, Bowie
 Can You Hear Me, Bowie
-Heart's Done Time, Aerosmith
-Magic touch, Aerosmith
-Rag doll, Aerosmith
-Simoriah, Aerosmith
-Dude (Looks Like A Lady), Aerosmith
-Hangman jury, Aerosmith
-Girl keeps coming apart, Aerosmith
-Angel, Aerosmith
-Permanent vacation, Aerosmith
-I'm Down, Aerosmith
-The Movie, Aerosmith
 Show of Strength, Bunnymen
 With a Hip, Bunnymen
 Over the Wall, Bunnymen
@@ -4665,7 +4644,6 @@ Jesus Just Left Chicago, Top
 Beer Drinkers And Hell Raisers, Top
 Master Of Sparks, Top
 Hot, Blue And Righteous, Top
-Move Me On Down The Line, Top
 Precious And Grace, Top
 La Grange, Top
 Sheik, Top
@@ -4814,7 +4792,6 @@ Tadd's Delight, Davis
 Dear Old Stockholm ('Round About Midnight version), Davis
 Budo - Digitally Remastered 98, Davis
 'Round Midnight, Davis
-Chance It (aka Max Is Making Wax) - Live Version, Davis
 Ghetto Walkin', Davis
 It Never Entered My Mind, Davis
 The Theme, Davis
@@ -5108,6 +5085,7 @@ You Can't Hurry Love, Collins
 It Don't Matter To Me, Collins
 Thru These Walls, Collins
 Don't Let Him Steal Your Heart Away, Collins
+The Outsiders, Collins
 Why Can't It Wait 'Til Morning, Collins
 You Can't Hurry Love, Collins
 Take a Lickin' and Keep on Kickin', Collins
@@ -5298,6 +5276,7 @@ Murder in the Red Barn, Waits
 Black Wings, Waits
 Whistle Down the Wind, Waits
 I Don't Wanna Grow Up, Waits
+Let me down up on it, Waits
 That Feel, Waits
 Late for the Sky, Jackson
 Fountain of Sorrow, Jackson
@@ -5824,7 +5803,7 @@ If I Were A Bell, Davis
 Stella By Starlight, Davis
 Ghetto Walkin', Davis
 I Fall In Love Too Easily, Davis
-The Theme - Live at Fillmore East June 17, 1970, Davis
+The Theme, Davis
 My Funny Valentine, Davis
 When I Fall in Love, Davis
 'Round Midnight, Davis
@@ -5992,6 +5971,7 @@ The Wall, Johnny
 Dirty Old Egg-Suckin' Dog, Johnny
 Flushed From The Bathroom Of Your Heart, Johnny
 Joe Bean, Johnny
+Jackson, Johnny
 Jackson, Johnny
 The Legend Of John Henry's Hammer, Johnny
 Poème Sur La 7ème, Johnny
@@ -6202,9 +6182,9 @@ She Took a Long Cold Look, Barrett
 Golden Hair, Barrett
 Strawberry Wine, Band
 Time To Kill, Band
-Just another whistle stop - 2000 digital remaster, Band
+Just Another Whistle Stop, Band
 All La Glory, Band
-The shape i'm in - 2000 - remaster, Band
+Shape I'm In, Band
 The W.S. Walcott Medicine Show, Band
 Daniel And The Sacred Harp, Band
 Stage Fright, Band
@@ -6291,7 +6271,7 @@ Ideology, Bragg
 Greetings to the New Brunette, Bragg
 Only Bad Signs, Bragg
 Hold The Fort, Bragg
-Home Ain't Where His Heart Is Anymore, Shania
+Home Ain't Where His Heart Is (Anymore), Shania
 Any Man of Mine, Shania
 Whose Bed Have Your Boots Been Under?, Shania
 (If You're Not in It for Love) I'm Outta Here!, Shania
@@ -6323,6 +6303,7 @@ Watermelon In Easter Hay, Zappa
 A Little Green Rosetta, Zappa
 You've Got a Friend in Me, Newman
 Main Title, Newman
+This Is the Day, Newman
 Emperor Zurg Vs. Buzz, Newman
 Political Science, Newman
 You've Got a Friend in Me, Newman
@@ -6343,6 +6324,7 @@ Stupidmop, Pearl
 Rock and Roll Doctor, Little
 Oh Atlanta, Little
 Skin It Back, Little
+Down the Road, Little
 Spanish Moon, Little
 Feats Don't Fail Me Now, Little
 The Fan, Little
@@ -6509,19 +6491,6 @@ Hail Sagan (Special K), Beastie
 Creepin', Beastie
 Learning Remote Control, Beastie
 Oh My Goodness This Record's Incredible, Beastie
-Red Intro, Fugees
-How Many Mics, Fugees
-Ready or Not, Fugees
-Zealots, Fugees
-The Beast, Fugees
-Fu-Gee-La, Fugees
-Family Business, Fugees
-The Score, Fugees
-The Mask, Fugees
-Cowboys, Fugees
-No Woman, No Cry, Fugees
-Manifest/outro, Fugees
-Mista Mista, Fugees
 Song Of Love, Stephen
 Rock And Roll Crazies / Cuban Bluegrass, Stephen
 Jet Set (Sigh), Stephen
@@ -6594,9 +6563,9 @@ I Know Him So Well, Houston
 When I Fall in Love, Cole
 Ain't Misbehavin', Cole
 When Sunny Gets Blue, Cole
-All Over The World, Cole
+Love Is the Thing, Cole
 Stay as Sweet as You Are, Cole
-Without You, Cole
+Where Can I Go Without You?, Cole
 Dinah (Take 2), Thelonious
 I surrender, dear, Thelonious
 Ruby, My Dear, Thelonious
@@ -6975,7 +6944,6 @@ Feats Don't Fail Me Now, Little
 One Love Stand, Little
 Rock and Roll Doctor, Little
 Skin It Back, Little
-On Your Way Down, Little
 Walkin' All Night, Little
 Cold, Cold, Cold, Little
 Day At The Dog Races [Live Outtake], Little
@@ -7247,7 +7215,7 @@ Long Train Runnin', Brothers
 China Grove, Brothers
 Dark Eyed Cajun Woman, Brothers
 Clear as the Driven Snow, Brothers
-A Night Without You, Brothers
+Without You, Brothers
 South City Midnight Lady, Brothers
 Evil Woman, Brothers
 Busted Down Around O'Connelly Corners, Brothers
@@ -7645,6 +7613,7 @@ Sycamore Girl, Rex
 The Motivator, Rex
 Life's a Gas, Rex
 Rip-Off, Rex
+There Was a Time, Rex
 Raw Ramp, Rex
 Hot Love, Rex
 Woodland Rock, Rex
@@ -8496,7 +8465,6 @@ Spaced Cowboy, Family
 Runnin' Away, Family
 Thank You for Talkin' to Me Africa, Family
 My Gorilla Is My Butler - Instrumental, Family
-Do You Know What? - Instrumental, Family
 Violet, Hole
 Miss World, Hole
 Plump, Hole

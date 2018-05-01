@@ -9,16 +9,16 @@ import spotifyclient
 
 #This file provides some basic code to get started with.
 
-folder = 'data/1001Albums' #Replace with a folder of .pkl files containg Song objects
+folder = 'data/1001Albums0' #Replace with a folder of .pkl files containg Song objects
 GENRES = [
 'pop',
 'rap',
 'rock',
 'r&b',
 'country',
-'jazz',
-'electronic',
+'blues'
 ]
+
 counts = [0 for i in range(len(GENRES))]
 totalGenreLyrics = ["" for i in range(len(GENRES))]
 genreNums = [0 for i in range(len(GENRES))]
@@ -29,7 +29,6 @@ genreNums = [0 for i in range(len(GENRES))]
 #loaddata.loadDataFromAlbums(loaddata.getLarkin1000(folder), folder, folder + '.txt', folder + '.log')
 
 #load songs variable with 500 Song objects, using random cluster sampling
-
 
 
 
@@ -67,7 +66,6 @@ for s in songs: #Populate the various buckets
 
 '''
 
-
 percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
 
 for i in range(len(percentages)):
@@ -76,7 +74,6 @@ for i in range(len(percentages)):
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
 print("True random success rate is: ", round(binomialProbab,4))
-
 
 
 '''
