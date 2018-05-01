@@ -1,5 +1,6 @@
 import song
 import loaddata
+import wordCloudGenerator as wcg
 from loadsongs import *
 from classifier import *
 from nHotEncoder import *
@@ -19,7 +20,7 @@ GENRES = [
 'electronic',
 ]
 counts = [0 for i in range(len(GENRES))]
-
+totalGenreLyrics = ["" for i in range(len(GENRES))]
 genreNums = [0 for i in range(len(GENRES))]
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
@@ -45,9 +46,13 @@ for s in songs: #Populate the various buckets
         if genre in s.genres:
             counts[i]+= 1 #Update how many of genre X songs there are
             numGenres += 1 #Keeps track of number of genres for each song
+            totalGenreLyrics[i]= totalGenreLyrics[i] + s.lyrics
 
     genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
     #print(s.title, 'by', s.artist+':',s.genres, " with popularity ", s.popularity, s.duration_ms)
+
+
+#wcg.saveWordClouds(GENRES, totalGenreLyrics)
 
 '''
 
@@ -73,14 +78,15 @@ binomialProbab = generateRandomProbability(genreNums, GENRES)
 print("True random success rate is: ", round(binomialProbab,4))
 
 
-songs = clusteredSample(songs, 500, song.GENRES)
+
+'''
+#songs = clusteredSample(songs, 500, song.GENRES)
 
 
 
 
 #lyricsList  = [song.simpleLyrics() for song in songs]
 #print(lyricsList[1])
-'''
 
 
 #Print the genre frequencies
