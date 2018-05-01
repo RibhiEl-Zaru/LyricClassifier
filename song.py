@@ -10,8 +10,6 @@ GENRES = [
 'rock',
 'r&b',
 'country',
-'jazz',
-'electronic',
 'blues'
 ]
 
