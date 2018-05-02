@@ -10,6 +10,7 @@ import math
 import bayesianModel as BM
 import spotifyclient
 from train_test_sets import *
+import gensim
 
 #This file provides some basic code to get started with.
 
@@ -28,6 +29,7 @@ GENRES = [
 counts = [0 for i in range(len(GENRES))]
 totalGenreLyrics = [[] for i in range(len(GENRES))]
 genreNums = [0 for i in range(len(GENRES))]
+allGenreLyrics = [[] for i in range(len(GENRES))]
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
 #NOTE: this code takes a very long time to run. If you would like to try it out, we suggest running it overnight.
@@ -37,11 +39,8 @@ genreNums = [0 for i in range(len(GENRES))]
 #load songs variable with 500 Song objects, using random cluster sampling
 
 
-
-
 songs = load(folder, GENRES)
 train, test = train_test(songs)
-
 
 total = 0
 
@@ -49,27 +48,36 @@ stops = stopwords.words('english')
 genreToSongs = {}
 
 trainingSet, testSet = train_test(songs)
+allTokSentences = []
 for s in trainingSet: #Populate the various buckets
     total += 1
     numGenres = 0
     sentences = s.lyrics.rstrip().splitlines()
+    songGenre = ''.join(s.genres)
+    index = GENRES.index(songGenre)
     #print("    SENTENCES    ")
     #print(sentences)
     #Build the sentences that we'd need to add
     toExtend = []
-    for words in sentences:
-        words = words.split()
+    tokSentences = []
+    for sentence in sentences:
+        tokSentence = word_tokenize(sentence)
+        for word in tokSentence:
+            allGenreLyrics[index].append(word)
+        tokSentences.append(tokSentence)
+        words = sentence.split()
         toExtend.append(list(set([w for w in words if w not in stops])))
 
     #print("    toExtend    ")
     #print(toExtend)
 
     # To extend is the list of lists with all words tokenized
+    allTokSentences.extend(tokSentences)
     allWords = []
     for sentList in toExtend:
         allWords.extend(sentList)
 
-    s.setTokenizedSentences(allWords)
+    s.setTokenizedSentences(tokSentences)
 
     # Populate respective genre buckets
     for i in range(len(GENRES)):
@@ -89,9 +97,11 @@ for s in trainingSet: #Populate the various buckets
 
             genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
+##print(len(allGenreLyrics[0]))
+##print(len(allGenreLyrics[1]))
+
 
 '''
-
     This is how we generate wordclouds.
 
 wcg.saveWordClouds(GENRES, totalGenreLyrics)
@@ -102,7 +112,6 @@ wcg.saveWordClouds(GENRES, totalGenreLyrics)
 freqDists = BM.computeFreqDist(totalGenreLyrics, GENRES)
 
 accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists)
-
 
 '''
 
@@ -117,6 +126,7 @@ accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists)
 
 
 
+'''
 '''
 percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
 
@@ -135,6 +145,18 @@ def calcTotal(genreToSongs):
     for key in genreToSongs.keys():
         tot += len(genreToSongs[key])
     return tot
+'''
+'''
+'''
+##model = gensim.models.Word2Vec(allTokSentences, size=100, window=5, min_count=1, workers=4)
+##print(model.wv['love'])
+##print(model.wv['and'])
+
+
+
+
+
+
 
 
 '''
