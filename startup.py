@@ -15,7 +15,7 @@ from train_test_sets import *
 
 folder = 'data/1001Albums0' #Replace with a folder of .pkl files containg Song objects
 GENRES = [
-'pop',
+'folk',
 'rap',
 'rock',
 'r&b',
@@ -98,9 +98,11 @@ wcg.saveWordClouds(GENRES, totalGenreLyrics)
 
 '''
 
+
 freqDists = BM.computeFreqDist(totalGenreLyrics, GENRES)
 
-BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists)
+accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists)
+
 
 '''
 

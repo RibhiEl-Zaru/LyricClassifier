@@ -1,5 +1,7 @@
 import math
 
+
+
 ## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
 def naive_bayes(reviewwords, genreList, freqDistLists):
     defaultprob = math.log(0.0000000000001)
@@ -21,17 +23,28 @@ def naive_bayes(reviewwords, genreList, freqDistLists):
 
 def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists):
     numCorrect = 0
+    guesses = [0 for i in range(len(genreList))]
+    correctGuesses = [0 for i in range(len(genreList))]
+    actual =  [0 for i in range(len(genreList))]
     for song in testData:
         reviewWords = song.lyrics
         genres = song.genres
 
         result = naive_bayes(reviewWords, genreList, freqDistLists)
-
-        if result in genres:
-            numCorrect += 1
-
+        guesses[genreList.index(result)] += 1
+        for genre in genres:
+            if genre == result:
+                numCorrect += 1
+                correctGuesses[genreList.index(result)] += 1
+            actual[genreList.index(genre)] += 1
     accuracy = numCorrect/len(testData)
+    print("Genres\t", genreList)
+    print("Guesses\t", guesses)
+    print("Correct Guesses\t", correctGuesses)
+    print("Actual Data\t", actual)
+    print("Percentage Correct for Genre\t", [round(correctGuesses[i]/actual[i],4) for i in range(len(actual))])
     print("ACCURACY:\t", accuracy)
+    return accuracy
 
 
 def computeFreqDist(totalGenreLyrics, GENRES):
