@@ -1,11 +1,12 @@
 import song
 import loaddata
-import wordCloudGenerator as wcg
+#import wordCloudGenerator as wcg
 from loadsongs import *
 from classifier import *
 from nHotEncoder import *
 from preProcessingUtil import *
 import spotifyclient
+from train_test_sets import *
 
 #This file provides some basic code to get started with.
 
@@ -34,6 +35,7 @@ genreNums = [0 for i in range(len(GENRES))]
 
 
 songs = load(folder, GENRES)
+train, test = train_test(songs)
 
 
 total = 0
