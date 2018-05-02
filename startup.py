@@ -1,10 +1,12 @@
 import song
+from nltk.corpus import stopwords
 import loaddata
 #import wordCloudGenerator as wcg
 from loadsongs import *
 from classifier import *
 from nHotEncoder import *
 from preProcessingUtil import *
+import math
 import spotifyclient
 from train_test_sets import *
 
@@ -20,8 +22,30 @@ GENRES = [
 'blues'
 ]
 
+## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
+def naive_bayes(reviewwords, genreList, freqDistLists):
+    defaultprob = math.log(0.0000000000001)
+    scores = [0 for i in range(len(genreList))]
+
+    toRet = None
+    highScore = -float("inf")
+    for i in range(len(genreList)):
+        freqDist = freqDistLists[i]
+        score = freqDist.get(reviewwords[0], defaultprob)
+        for i in range(1, len(reviewwords)):
+            score += freqDist.get(reviewwords[i], defaultprob)
+
+        if score > highScore:
+            highScore = score
+            toRet = GENRES[i]
+
+    return toRet
+
 counts = [0 for i in range(len(GENRES))]
-totalGenreLyrics = ["" for i in range(len(GENRES))]
+totalGenreLyrics = [[] for i in range(len(GENRES))]
+genreTokenLists = [[] for i in range(len(GENRES))]
+genreTypeLists = [[] for i in range(len(GENRES))]
+freqDists = [{} for i in range(len(GENRES))]
 genreNums = [0 for i in range(len(GENRES))]
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
@@ -39,21 +63,86 @@ train, test = train_test(songs)
 
 
 total = 0
+
+stops = stopwords.words('english')
+
 for s in songs: #Populate the various buckets
     total += 1
     numGenres = 0
+    sentences = s.lyrics.rstrip().splitlines()
+    #print("    SENTENCES    ")
+    #print(sentences)
+    #Build the sentences that we'd need to add
+    toExtend = []
+    for words in sentences:
+        words = words.split()
+        toExtend.append(list(set([w for w in words if w not in stops])))
+
+    #print("    toExtend    ")
+    #print(toExtend)
+
+    # To extend is the list of lists with all words tokenized
+    allWords = []
+    for sentList in toExtend:
+        allWords.extend(sentList)
+
+    s.setTokenizedSentences(allWords)
+
+    # Populate respective genre buckets
     for i in range(len(GENRES)):
         genre = GENRES[i]
+
         if genre in s.genres:
             counts[i]+= 1 #Update how many of genre X songs there are
             numGenres += 1 #Keeps track of number of genres for each song
-            totalGenreLyrics[i]= totalGenreLyrics[i] + s.lyrics
 
-    genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
-    #print(s.title, 'by', s.artist+':',s.genres, " with popularity ", s.popularity, s.duration_ms)
+            for x in toExtend:
+
+                totalGenreLyrics[i].extend(allWords)
+
+            genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
+
+'''
+
+    This is how we generate wordclouds.
+
+wcg.saveWordClouds(GENRES, totalGenreLyrics)
+
+'''
+
+'''
+Compile all words, numTokens in genreTokenLists, num of distinct tokens in genreTypeLists
+where the i refers to the genre in GENRES[i]
+'''
+allwords = []
+for i in range(len(totalGenreLyrics)):
+    genreTokenLists[i] = len(totalGenreLyrics[i])
+    genreTypeLists[i] = len(set(totalGenreLyrics[i]))
+    allwords.extend(list(set(totalGenreLyrics[i])))
 
 
-#wcg.saveWordClouds(GENRES, totalGenreLyrics)
+
+'''
+Initialize frequency count for the genres
+'''
+for i in range(len(totalGenreLyrics)):
+    genreLyrics = totalGenreLyrics[i]
+    for word in genreLyrics:
+        currentFreqDist = freqDists[i]
+        try:
+            currentFreqDist[word] += 1
+        except Exception as e:
+            currentFreqDist[word] = 1
+
+'''
+Process the freqency distributions for each word
+'''
+for i in range(len(freqDists)):
+    freqDist = freqDists[i]
+    for key in freqDist:
+        freqDist[key] = math.log(freqDist[key]) - math.log(genreTokenLists[i])
+
+
 
 '''
 
@@ -66,7 +155,7 @@ for s in songs: #Populate the various buckets
                      Returns the true chance of correctly guessing the genre of a song,
                      factoring in that each song has a different amount of "correct" genres
 
-'''
+
 
 percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
 
@@ -76,6 +165,13 @@ for i in range(len(percentages)):
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
 print("True random success rate is: ", round(binomialProbab,4))
+
+
+'''
+
+
+
+
 
 
 '''

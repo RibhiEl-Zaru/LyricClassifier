@@ -22,7 +22,6 @@ def vectorize(tokenizedList, rang):
 
 def generateRandomProbability(genreNums, GENRES):
     total = sum(genreNums)
-    print(total)
     binomialProbab = 0.0
 
     for i in range(len(genreNums)):

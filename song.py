@@ -120,6 +120,11 @@ class Song(object):
                 freq[word] = 1
         return freq
 
+
+    def setTokenizedSentences(self, sents):
+        self.tokenizedSentences = sents
+
+
     def saveLyrics(self, filename):
     #Saves title artist, lyrics to file at filename (creates a file if none exists)
     #NOTE: To save the entire Song object, use saveSong()
