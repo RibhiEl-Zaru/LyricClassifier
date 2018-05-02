@@ -155,6 +155,4 @@ if __name__ == '__main__':
         path = 'songlist.txt'
     if path:
         save(path, sub)
-
-
 '''
