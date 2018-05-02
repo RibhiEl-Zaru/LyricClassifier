@@ -67,22 +67,44 @@ stops = stopwords.words('english')
 for s in songs: #Populate the various buckets
     total += 1
     numGenres = 0
-    words = s.lyrics.rstrip().split()
+    sentences = s.lyrics.rstrip().splitlines()
+    #print("    SENTENCES    ")
+    #print(sentences)
+    #Build the sentences that we'd need to add
+    toExtend = []
+    for words in sentences:
+        words = words.split()
+        toExtend.append(list(set([w for w in words if w not in stops])))
 
+    #print("    toExtend    ")
+    #print(toExtend)
+
+    # To extend is the list of lists with all words tokenized
+    allWords = []
+    for sentList in toExtend:
+        allWords.extend(sentList)
+
+    # Populate respective genre buckets
     for i in range(len(GENRES)):
         genre = GENRES[i]
-        toExtend = []
-        toExtend.extend(list(set([w for w in words if w not in stops])))
+
         if genre in s.genres:
             counts[i]+= 1 #Update how many of genre X songs there are
             numGenres += 1 #Keeps track of number of genres for each song
-            totalGenreLyrics[i].extend(list(set(toExtend)))
 
-    genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
-    #print(s.title, 'by', s.artist+':',s.genres, " with popularity ", s.popularity, s.duration_ms)
+            for x in toExtend:
 
-#wcg.saveWordClouds(GENRES, totalGenreLyrics)
+                totalGenreLyrics[i].extend(allWords)
 
+            genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
+
+'''
+
+    This is how we generate wordclouds.
+
+wcg.saveWordClouds(GENRES, totalGenreLyrics)
+
+'''
 
 '''
 Compile all words, numTokens in genreTokenLists, num of distinct tokens in genreTypeLists
