@@ -56,6 +56,12 @@ def load(folder, genres=[]):
                 if len(genres)>0:
                     s.filter(genres)
                 if len(s.genres)>0:
+                    newGenre = []
+
+                    numOfGenres = len(s.genres)
+                    choice = random.randint(0,numOfGenres-1)
+                    newGenre.append(s.genres[choice])
+                    s.genres = newGenre
                     songs.append(s)
         return songs
     except Exception as e:

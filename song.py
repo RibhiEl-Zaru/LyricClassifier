@@ -38,6 +38,7 @@ class Song(object):
         self.numVerses = 0
         self.numLines = 0
         self.numChoruses = 0
+        self.tokenizedSentences = None 
 
         if len(genres)==0 or notfound=='add':
             artistgenres = spotifyclient.getArtistProperties(self.artist, GENRES)
@@ -54,6 +55,7 @@ class Song(object):
     #returns a list of removed genres
         removed = []
         new = []
+
         for g in self.genres:
             for a in allowed:
                 if a not in new and a in g:
@@ -62,6 +64,17 @@ class Song(object):
                     removed.append(g)
         self.genres = new
         return removed
+
+        '''
+        for g in self.genres:
+            for a in allowed:
+                if g == a and a not in new:
+                    new.append(a)
+                else:
+                    removed.append(g)
+        self.genres = new
+        return removed
+        '''
 
     def tokens(self):
         return word_tokenize(self.simpleLyrics())
