@@ -62,27 +62,23 @@ def load(folder, genres=[]):
         print('Somthing went wrong...')
         print(e)
 
-def clusteredSample(songs, n, genres):
-    # Takes in a list of songs and sorts them by genre (restricted to elements of genres)
-    #, then samples from each bin uniformly n times, returning a new list of songs
-    # How to Use:
-    #   from loadsongs import *
-    #   songs = clusteredSample(load(folder, n, g)
-    #, where folder is the folder containing relevant .pkl files, n is the desired size
-    # of the dataset, and g is a list of allowed genres
+def genTrainingAndTestSet(genreToSongs, n):
+    '''
+     Takes in a list of songs and sorts them by genre (restricted to elements of genres)
+      then samples from each bin uniformly n times, returning a new list of songs
+     How to Use:
+       from loadsongs import *
+       songs = clusteredSample(genreToSongs, n)
+     where genreToSongs is a map with key-val pair genre to list of songs of that genre
+      and n is the desired amount of songs in test set.
     #NOTE: This function is not built to handle all exceptions. It might blow up if you don't treat it nicely
 
+    '''
 
-    d = {}
-    for s in songs:
-        for genre in s.genres:
-            s.filter(genres)
-        for genre in s.genres:
-            if genre in d.keys():
-                d[genre].append(s)
-            else:
-                d[genre] = [s]
+    d = genreToSongs.copy()
+
     l = []
+
     for genre in d:
         random.shuffle(d[genre])
     while len(l)<n:
@@ -93,7 +89,12 @@ def clusteredSample(songs, n, genres):
         if len(d[g[r1]])==0:
             g.pop(r1)
 
-    return l
+    trainSet = []
+    for key in d.keys():
+        songs = d[key]
+        trainSet.extend(songs)
+
+    return ( trainSet, l)
 
 def convertPKLto2(folder, newfolder):
     songs = load(folder)

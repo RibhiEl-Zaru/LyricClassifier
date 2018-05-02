@@ -21,6 +21,8 @@ GENRES = [
 'blues'
 ]
 
+trainTestSplit= [.8, .2]
+
 ## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
 def naive_bayes(reviewwords, genreList, freqDistLists):
     defaultprob = math.log(0.0000000000001)
@@ -39,6 +41,12 @@ def naive_bayes(reviewwords, genreList, freqDistLists):
             toRet = GENRES[i]
 
     return toRet
+
+def calcTotal(genreToSongs):
+    tot = 0
+    for key in genreToSongs.keys():
+        tot += len(genreToSongs[key])
+    return tot
 
 counts = [0 for i in range(len(GENRES))]
 totalGenreLyrics = [[] for i in range(len(GENRES))]
@@ -63,6 +71,7 @@ songs = load(folder, GENRES)
 total = 0
 
 stops = stopwords.words('english')
+genreToSongs = {}
 
 for s in songs: #Populate the various buckets
     total += 1
@@ -91,6 +100,10 @@ for s in songs: #Populate the various buckets
         genre = GENRES[i]
 
         if genre in s.genres:
+            if genre in genreToSongs.keys():
+                genreToSongs[genre].append(s)
+            else:
+                genreToSongs[genre] = [s]
             counts[i]+= 1 #Update how many of genre X songs there are
             numGenres += 1 #Keeps track of number of genres for each song
 
@@ -99,6 +112,10 @@ for s in songs: #Populate the various buckets
                 totalGenreLyrics[i].extend(allWords)
 
             genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
+
+tot = calcTotal(genreToSongs)
+
+trainingSet, testSet = genTrainingAndTestSet(genreToSongs, trainTestSplit[1] * tot)
 
 '''
 
