@@ -7,6 +7,7 @@ from classifier import *
 from nHotEncoder import *
 from preProcessingUtil import *
 import math
+import bayesianModel as BM
 import spotifyclient
 from train_test_sets import *
 
@@ -22,38 +23,10 @@ GENRES = [
 'blues'
 ]
 
-trainTestSplit= [.8, .2]
 
-## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
-def naive_bayes(reviewwords, genreList, freqDistLists):
-    defaultprob = math.log(0.0000000000001)
-    scores = [0 for i in range(len(genreList))]
-
-    toRet = None
-    highScore = -float("inf")
-    for i in range(len(genreList)):
-        freqDist = freqDistLists[i]
-        score = freqDist.get(reviewwords[0], defaultprob)
-        for i in range(1, len(reviewwords)):
-            score += freqDist.get(reviewwords[i], defaultprob)
-
-        if score > highScore:
-            highScore = score
-            toRet = GENRES[i]
-
-    return toRet
-
-def calcTotal(genreToSongs):
-    tot = 0
-    for key in genreToSongs.keys():
-        tot += len(genreToSongs[key])
-    return tot
 
 counts = [0 for i in range(len(GENRES))]
 totalGenreLyrics = [[] for i in range(len(GENRES))]
-genreTokenLists = [[] for i in range(len(GENRES))]
-genreTypeLists = [[] for i in range(len(GENRES))]
-freqDists = [{} for i in range(len(GENRES))]
 genreNums = [0 for i in range(len(GENRES))]
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
@@ -75,7 +48,8 @@ total = 0
 stops = stopwords.words('english')
 genreToSongs = {}
 
-for s in songs: #Populate the various buckets
+trainingSet, testSet = train_test(songs)
+for s in trainingSet: #Populate the various buckets
     total += 1
     numGenres = 0
     sentences = s.lyrics.rstrip().splitlines()
@@ -115,9 +89,6 @@ for s in songs: #Populate the various buckets
 
             genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
-tot = calcTotal(genreToSongs)
-
-trainingSet, testSet = genTrainingAndTestSet(genreToSongs, trainTestSplit[1] * tot)
 
 '''
 
@@ -127,39 +98,9 @@ wcg.saveWordClouds(GENRES, totalGenreLyrics)
 
 '''
 
-'''
-Compile all words, numTokens in genreTokenLists, num of distinct tokens in genreTypeLists
-where the i refers to the genre in GENRES[i]
-'''
-allwords = []
-for i in range(len(totalGenreLyrics)):
-    genreTokenLists[i] = len(totalGenreLyrics[i])
-    genreTypeLists[i] = len(set(totalGenreLyrics[i]))
-    allwords.extend(list(set(totalGenreLyrics[i])))
+freqDists = BM.computeFreqDist(totalGenreLyrics, GENRES)
 
-
-
-'''
-Initialize frequency count for the genres
-'''
-for i in range(len(totalGenreLyrics)):
-    genreLyrics = totalGenreLyrics[i]
-    for word in genreLyrics:
-        currentFreqDist = freqDists[i]
-        try:
-            currentFreqDist[word] += 1
-        except Exception as e:
-            currentFreqDist[word] = 1
-
-'''
-Process the freqency distributions for each word
-'''
-for i in range(len(freqDists)):
-    freqDist = freqDists[i]
-    for key in freqDist:
-        freqDist[key] = math.log(freqDist[key]) - math.log(genreTokenLists[i])
-
-
+BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists)
 
 '''
 
@@ -174,6 +115,7 @@ for i in range(len(freqDists)):
 
 
 
+'''
 percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
 
 for i in range(len(percentages)):
@@ -184,11 +126,13 @@ binomialProbab = generateRandomProbability(genreNums, GENRES)
 print("True random success rate is: ", round(binomialProbab,4))
 
 
-'''
 
 
-
-
+def calcTotal(genreToSongs):
+    tot = 0
+    for key in genreToSongs.keys():
+        tot += len(genreToSongs[key])
+    return tot
 
 
 '''
