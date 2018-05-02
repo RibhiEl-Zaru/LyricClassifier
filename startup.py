@@ -84,6 +84,8 @@ for s in songs: #Populate the various buckets
     for sentList in toExtend:
         allWords.extend(sentList)
 
+    s.setTokenizedSentences(allWords)
+
     # Populate respective genre buckets
     for i in range(len(GENRES)):
         genre = GENRES[i]
