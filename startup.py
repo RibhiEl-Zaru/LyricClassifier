@@ -11,6 +11,8 @@ import bayesianModel as BM
 import spotifyclient
 from train_test_sets import *
 import gensim
+from ngram_FreqDist import *
+#random.seed(50)
 
 #This file provides some basic code to get started with.
 
@@ -49,7 +51,7 @@ total = 0
 stops = stopwords.words('english')
 genreToSongs = {}
 
-trainingSet, testSet = train_test(songs)
+trainingSet, testSet = train_test(songs, GENRES)
 allTokSentences = []
 for s in trainingSet: #Populate the various buckets
     total += 1
