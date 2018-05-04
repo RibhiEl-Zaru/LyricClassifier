@@ -40,6 +40,8 @@ allGenreLyrics = [[] for i in range(len(GENRES))]
 
 
 songs = load(folder, GENRES)
+print(len(songs))
+
 train, test = train_test(songs)
 
 total = 0
@@ -127,11 +129,11 @@ accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists)
 
 
 '''
-'''
+
 percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
 
 for i in range(len(percentages)):
-    print("Data is : " + str(percentages[i])  + "% " + GENRES[i] )
+    print("Data is : " + str(percentages[i])  + "% " + GENRES[i], "   with a total of  "  , counts[i])
 
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
@@ -145,7 +147,7 @@ def calcTotal(genreToSongs):
     for key in genreToSongs.keys():
         tot += len(genreToSongs[key])
     return tot
-'''
+
 '''
 '''
 ##model = gensim.models.Word2Vec(allTokSentences, size=100, window=5, min_count=1, workers=4)
