@@ -16,7 +16,7 @@ from ngram_FreqDist import *
 
 #This file provides some basic code to get started with.
 
-folder = 'data/1001Albums0' #Replace with a folder of .pkl files containg Song objects
+folder = 'data/1001Albums1' #Replace with a folder of .pkl files containg Song objects
 GENRES = [
 'folk',
 'rap',
