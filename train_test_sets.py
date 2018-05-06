@@ -19,7 +19,6 @@ def train_test(songs, genres):
         proportion= amount/float(len(songs))
         x=0
         total = round(trainTestAmount[0]*proportion)
-        print("Total "+i+": "+str(total))
         for s in songs:
             if s.genres[0]==i:
                 if x < total:

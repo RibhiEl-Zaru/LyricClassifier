@@ -27,7 +27,7 @@ GENRES = [
 'blues'
 ]
 
-iterations = 1
+iterations = 0
 
 counts = [0 for i in range(len(GENRES))]
 totalGenreLyrics = [[] for i in range(len(GENRES))]
@@ -42,98 +42,113 @@ totalAccuracy = 0
 #loaddata.loadDataFromAlbums(loaddata.getLarkin1000(folder), folder, folder + '.txt', folder + '.log')
 
 #load songs variable with 500 Song objects, using random cluster sampling
+for i in range(1,3):
+    iterations = 0
+    ngramLen = i+1
+    songs = load(folder, GENRES)
 
-ngramLen = 3
-songs = load(folder, GENRES)
-print(len(songs))
+    print (ngramLen,"-gram analysis")
+    BM.initializeConfusionMatrix(GENRES)
+    for i in range(1):
+        featureMap = {}
+        try:
+            total = 0
 
-for i in range(iterations):
-    total = 0
+            stops = stopwords.words('english')
+            genreToSongs = {}
 
-    stops = stopwords.words('english')
-    genreToSongs = {}
+            trainingSet, testSet = train.train_test(songs, GENRES)
+            allTokSentences = []
+            for s in trainingSet: #Populate the various buckets
+                total += 1
+                numGenres = 0
+                sentences = s.lyrics.rstrip().splitlines()
+                songGenre = ''.join(s.genres)
+                index = GENRES.index(songGenre)
+                #print("    SENTENCES    ")
+                #print(sentences)
+                #Build the sentences that we'd need to add
+                toExtend = []
+                tokSentences = []
+                for sentence in sentences:
+                    tokSentence = ngram_FreqDist.ngrams(sentence, ngramLen)
+                    for word in tokSentence:
+                        allGenreLyrics[index].append(word)
+                    tokSentences.append(tokSentence)
+                    words = sentence.split()
+                    toExtend.append(list(set([w for w in words if w not in stops])))
 
-    trainingSet, testSet = train.train_test(songs, GENRES)
-    allTokSentences = []
-    for s in trainingSet: #Populate the various buckets
-        total += 1
-        numGenres = 0
-        sentences = s.lyrics.rstrip().splitlines()
-        songGenre = ''.join(s.genres)
-        index = GENRES.index(songGenre)
-        #print("    SENTENCES    ")
-        #print(sentences)
-        #Build the sentences that we'd need to add
-        toExtend = []
-        tokSentences = []
-        for sentence in sentences:
-            tokSentence = ngram_FreqDist.ngrams(sentence, ngramLen)
-            for word in tokSentence:
-                allGenreLyrics[index].append(word)
-            tokSentences.append(tokSentence)
-            words = sentence.split()
-            toExtend.append(list(set([w for w in words if w not in stops])))
+                #print("    toExtend    ")
+                #print(toExtend)
 
-        #print("    toExtend    ")
-        #print(toExtend)
+                # To extend is the list of lists with all words tokenized
+                allTokSentences.extend(tokSentences)
+                allWords = []
+                for sentList in toExtend:
+                    allWords.extend(sentList)
 
-        # To extend is the list of lists with all words tokenized
-        allTokSentences.extend(tokSentences)
-        allWords = []
-        for sentList in toExtend:
-            allWords.extend(sentList)
+                s.setTokenizedSentences(tokSentences)
 
-        s.setTokenizedSentences(tokSentences)
+                featureMap["totalGenreLyrics"] = totalGenreLyrics
+                # Populate respective genre buckets
+                for i in range(len(GENRES)):
+                    genre = GENRES[i]
 
-        # Populate respective genre buckets
-        for i in range(len(GENRES)):
-            genre = GENRES[i]
+                    if genre in s.genres:
+                        if genre in genreToSongs.keys():
+                            genreToSongs[genre].append(s)
+                        else:
+                            genreToSongs[genre] = [s]
+                        counts[i]+= 1 #Update how many of genre X songs there are
+                        numGenres += 1 #Keeps track of number of genres for each song
 
-            if genre in s.genres:
-                if genre in genreToSongs.keys():
-                    genreToSongs[genre].append(s)
-                else:
-                    genreToSongs[genre] = [s]
-                counts[i]+= 1 #Update how many of genre X songs there are
-                numGenres += 1 #Keeps track of number of genres for each song
+                        for x in toExtend:
 
-                for x in toExtend:
+                            totalGenreLyrics[i].extend(allWords)
 
-                    totalGenreLyrics[i].extend(allWords)
+                        genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
-                genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
+            freqDists = BM.computeFreqDist(totalGenreLyrics, GENRES)
 
-    freqDists = BM.computeFreqDist(totalGenreLyrics, GENRES)
+            accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
+            totalAccuracy += accuracy
+            iterations += 1
+        except Exception as e:
 
-    accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
-    totalAccuracy += accuracy
-    '''
-
-                            DETAILS OF GENERATED LISTS
-
-        percentages : The chance that a random song is of each genre, as ordered by index shown in GENRES list.
-
-        binomialProbab : output of function in preProcessingUtil.py.
-
-                         Returns the true chance of correctly guessing the genre of a song,
-                         factoring in that each song has a different amount of "correct" genres
-
+            raise
 
 
-    '''
+        '''
 
-    percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
+                                DETAILS OF GENERATED LISTS
 
-    for i in range(len(percentages)):
-        print("Data is : " + str(percentages[i])  + "% " + GENRES[i], "   with a total of  "  , counts[i])
+            percentages : The chance that a random song is of each genre, as ordered by index shown in GENRES list.
+
+            binomialProbab : output of function in preProcessingUtil.py.
+
+                             Returns the true chance of correctly guessing the genre of a song,
+                             factoring in that each song has a different amount of "correct" genres
 
 
-    binomialProbab = generateRandomProbability(genreNums, GENRES)
-    print("True random success rate is: ", round(binomialProbab,4))
+
+        '''
+
+        #percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
+
+        #for i in range(len(percentages)):
+        #    print("Data is : " + str(percentages[i])  + "% " + GENRES[i], "   with a total of  "  , counts[i])
+
+    confMatrix = BM.getConfMatrix()
+    BM.displayPerformanceInterpretation(confMatrix, GENRES)
+    avgAccuracy  = totalAccuracy /iterations
+    print(avgAccuracy)
 
 
-avgAccuracy  = totalAccuracy /iterations
-print(avgAccuracy)
+binomialProbab = generateRandomProbability(genreNums, GENRES)
+print("True random success rate is: ", round(binomialProbab,4))
+
+
+
 
 def calcTotal(genreToSongs):
     tot = 0

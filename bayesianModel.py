@@ -5,8 +5,10 @@ truePosKey = "truePos"
 trueNegKey = "trueNeg"
 falsePosKey = "falsePos"
 falseNegKey = "falseNeg"
+numIterationsKey = "numIters"
 import ngram_FreqDist
 
+confMatrix = {}
 ## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
 def naive_bayes(reviewwords, genreList, freqDistLists):
     defaultprob = math.log(0.0000000000001)
@@ -53,98 +55,91 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
             actual[genreList.index(genre)] += 1
     accuracy = numCorrect/len(testData)
     x = analyzeConfusionMatrix(confusionMatrix, genreList)
-    displayPerformanceInterpretation(x)
+    #displayPerformanceInterpretation(x)
 
     #for row in range(len(confusionMatrix[0])):
         #print(confusionMatrix[row])
-
+    '''
     print("Genres\t", genreList)
     print("Guesses\t", guesses)
     print("Correct Guesses\t", correctGuesses)
     print("Actual Data\t", actual)
     print("Percentage Correct for Genre\t", [round(correctGuesses[i]/actual[i],4) for i in range(len(actual))])
     print("ACCURACY:\t", accuracy)
-
+    '''
     return accuracy
 
 
-def displayPerformanceInterpretation(genreResultsMap):
+def displayPerformanceInterpretation(genreResultsMap, GENRES):
+    '''
+        Error    : the number of all incorrect predictions divided by the total number of the dataset. (FP + FN)/(TP + FP + TN + FN)
+        ACCURACY : calculated as the number of all correct predictions divided by the total number of the dataset. (TP + TN)/(TP + FP + TN + FN)
+        Sensitivity : the number of correct positive predictions divided by the total number of positives.
+                      It is also called recall (REC) or true positive rate (TPR).
+                       The best sensitivity is 1.0, whereas the worst is 0.0.
 
-    print(" GENRE | ACCURACY | RECALL | SPECIFICITY | PRECISON | FSCORE ")
+
+    '''
+    print(" GENRE | ERROR | ACCURACY | RECALL | SPECIFICITY | PRECISON | FSCORE ")
     print("_____________________________________________________________")
+    print(genreResultsMap)
     for genre, info in genreResultsMap.items():
-        tp = info[truePosKey]
-        tn = info[trueNegKey]
-        fp = info[falsePosKey]
-        fn = info[falseNegKey]
-        err = calcErr(fp, fn, tp, tn)
-        acc = calcAcc(fp, fn, tp, tn)
-        recall = calcRecall(tp, fn)
-        specificity = calcSpecificity(tn, fn)
-        precision = calcPrecision(tp, fp)
+        if(genre in GENRES):
+            tp = info[truePosKey]
+            tn = info[trueNegKey]
+            fp = info[falsePosKey]
+            fn = info[falseNegKey]
+            err = calcErr(fp, fn, tp, tn)
+            acc = calcAcc(fp, fn, tp, tn)
+            recall = calcRecall(tp, fn)
+            specificity = calcSpecificity(tn, fn)
+            precision = calcPrecision(tp, fp)
 
-        fScore = calcFScore(.5, precision, recall)
+            fScore = calcFScore(.5, precision, recall)
 
-        print(genre + "\t" + str(round(err,2)) + "\t" + str(round(acc,2)) + "\t" + str(round(recall,2)) + "\t" + str(round(specificity,2)) +
-        "\t" + str(round(precision,2)) + "\t" +str(round(fScore,2)))
+            print(genre + "\t" + str(round(err,2)) + "\t" + str(round(acc,2)) + "\t" + str(round(recall,2)) + "\t" + str(round(specificity,2)) +
+            "\t" + str(round(precision,2)) + "\t" +str(round(fScore,2)))
     print("\n\n\n")
-def calcErr(fp, fn, tp, tn):
-    return (fp + fn)/(tp + tn + fn + fp)
 
-def calcAcc(fp, fn, tp, tn):
-    return (tp + tn)/(tp + tn + fn + fp)
+def initializeConfusionMatrix(genreList):
+    confMatrix[numIterationsKey] = 0
 
-def calcRecall(tp, fn):
-    return (tp)/(tp + fn)
-
-def calcSpecificity(tn, fn):
-    return (tn)/(tn + fn)
-
-def calcPrecision(tp, fp):
-    return (tp)/(tp + fp)
+    for i in range(len(genreList)):
+            toAdd = {}
+            genreOfInt = genreList[i]
+            toAdd[truePosKey] = 0
+            toAdd[falsePosKey] = 0
+            toAdd[falseNegKey] = 0
+            toAdd[trueNegKey] = 0
+            confMatrix[genreOfInt] = toAdd
 
 
-def calcFScore(beta, prec, recall):
-    numer = (1+beta**2.0)*(prec * recall)
-    denom = prec + recall
-    try: #done to avoid Exception thrown for 0 division
-        return numer/denom
-    except Exception as e:
-        return 0
-
-
+def getConfMatrix():
+    return confMatrix
 def analyzeConfusionMatrix(confusionMatrix, genreList):
-
-    toRet = {}
+    global confMatrix
 
     listSum = compute2dSum(confusionMatrix)
-    print(listSum)
+
+    confMatrix[numIterationsKey] += 1
     for i in range(len(genreList)):
-        toAdd = {}
         genreOfInt = genreList[i]
+        toAlter = confMatrix[genreOfInt]
         colSum = sum(confusionMatrix[:][i])
         rowSum = sum(confusionMatrix[i])
         truePos = confusionMatrix[i][i]
-        toAdd[truePosKey] = truePos
+        toAlter[truePosKey] += truePos
         falsePos = colSum - truePos
-        toAdd[falsePosKey] = falsePos
+        toAlter[falsePosKey] += falsePos
         falseNeg = rowSum - truePos
-        toAdd[falseNegKey] = falseNeg
+        toAlter[falseNegKey] += falseNeg
         trueNeg = listSum -falseNeg  - truePos - falsePos
-        toAdd[trueNegKey] = trueNeg
-
-        toRet[genreOfInt] = toAdd
+        toAlter[trueNegKey] += trueNeg
 
 
-    return toRet
 
+    return confMatrix
 
-def compute2dSum(toCount):
-    toRet = 0
-    for i in range(len(toCount)):
-        for j in range(len(toCount[0])):
-            toRet += toCount[i][j]
-    return toRet
 
 def computeFreqDist(totalGenreLyrics, GENRES):
 
@@ -182,3 +177,36 @@ def computeFreqDist(totalGenreLyrics, GENRES):
             freqDist[key] = math.log(freqDist[key]) - math.log(genreTokenLists[i])
 
     return freqDists
+
+
+def calcErr(fp, fn, tp, tn):
+    return (fp + fn)/(tp + tn + fn + fp)
+
+def calcAcc(fp, fn, tp, tn):
+    return (tp + tn)/(tp + tn + fn + fp)
+
+def calcRecall(tp, fn):
+    return (tp)/(tp + fn)
+
+def calcSpecificity(tn, fn):
+    return (tn)/(tn + fn)
+
+def calcPrecision(tp, fp):
+    return (tp)/(tp + fp)
+
+
+def calcFScore(beta, prec, recall):
+    numer = (1+beta**2.0)*(prec * recall)
+    denom = prec + recall
+    try: #done to avoid Exception thrown for 0 division
+        return numer/denom
+    except Exception as e:
+        return 0
+
+
+def compute2dSum(toCount):
+    toRet = 0
+    for i in range(len(toCount)):
+        for j in range(len(toCount[0])):
+            toRet += toCount[i][j]
+    return toRet
