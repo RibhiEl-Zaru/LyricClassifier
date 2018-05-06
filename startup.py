@@ -105,7 +105,7 @@ for i in range(iterations):
 
     freqDists = BM.computeFreqDist(totalGenreLyrics, GENRES)
 
-    accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists)
+    accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
     totalAccuracy += accuracy
     '''
 

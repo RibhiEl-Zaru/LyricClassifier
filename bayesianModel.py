@@ -5,6 +5,7 @@ truePosKey = "truePos"
 trueNegKey = "trueNeg"
 falsePosKey = "falsePos"
 falseNegKey = "falseNeg"
+import ngram_FreqDist
 
 ## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
 def naive_bayes(reviewwords, genreList, freqDistLists):
@@ -13,6 +14,7 @@ def naive_bayes(reviewwords, genreList, freqDistLists):
 
     toRet = None
     highScore = -float("inf")
+
     for i in range(len(genreList)):
         freqDist = freqDistLists[i]
         score = freqDist.get(reviewwords[0], defaultprob)
@@ -25,7 +27,7 @@ def naive_bayes(reviewwords, genreList, freqDistLists):
 
     return toRet
 
-def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists):
+def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
 
     confusionMatrix =  [[0 for i in range(len(genreList))]for i in range(len(genreList))]
 
@@ -34,7 +36,7 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists):
     correctGuesses = [0 for i in range(len(genreList))]
     actual =  [0 for i in range(len(genreList))]
     for song in testData:
-        reviewWords = song.lyrics
+        reviewWords = ngram_FreqDist.ngrams(song.lyrics, ngramLen)
 
         positives = song.genres
         result = naive_bayes(reviewWords, genreList, freqDistLists)
