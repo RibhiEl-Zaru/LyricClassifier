@@ -120,6 +120,9 @@ def displayPerformanceInterpretation(genreResultsMap, GENRES):
         Sensitivity : the number of correct positive predictions divided by the total number of positives.
                       It is also called recall (REC) or true positive rate (TPR).
                        The best sensitivity is 1.0, whereas the worst is 0.0.
+        Specificity: the number of correct negative predictions divided by the total number of negatives. TN/N
+        Precision : the number of correct positive predictions divided by the total number of positive predictions
+        FScore : F-score is a harmonic mean of precision and recall.
 
 
     '''
