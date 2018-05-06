@@ -125,7 +125,6 @@ def displayPerformanceInterpretation(genreResultsMap, GENRES):
     '''
     print(" GENRE | ERROR | ACCURACY | RECALL | SPECIFICITY | PRECISON | FSCORE ")
     print("_____________________________________________________________")
-    print(genreResultsMap)
     for genre, info in genreResultsMap.items():
         if(genre in GENRES):
             tp = info[truePosKey]
