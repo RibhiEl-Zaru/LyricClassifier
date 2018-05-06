@@ -29,11 +29,6 @@ GENRES = [
 
 iterations = 0
 
-counts = [0 for i in range(len(GENRES))]
-totalGenreLyrics = [[] for i in range(len(GENRES))]
-genreNums = [0 for i in range(len(GENRES))]
-allGenreLyrics = [[] for i in range(len(GENRES))]
-totalAccuracy = 0
 
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
@@ -44,6 +39,13 @@ totalAccuracy = 0
 #load songs variable with 500 Song objects, using random cluster sampling
 for i in range(1,3):
     iterations = 0
+    counts = [0 for i in range(len(GENRES))]
+    totalGenreLyrics = [[] for i in range(len(GENRES))]
+    totalGenreNumVerses = [{} for i in range(len(GENRES))]
+    genreNums = [0 for i in range(len(GENRES))]
+    allGenreLyrics = [[] for i in range(len(GENRES))]
+    totalAccuracy = 0
+
     ngramLen = i+1
     songs = load(folder, GENRES)
 
@@ -88,13 +90,16 @@ for i in range(1,3):
                     allWords.extend(sentList)
 
                 s.setTokenizedSentences(tokSentences)
-
-                featureMap["totalGenreLyrics"] = totalGenreLyrics
                 # Populate respective genre buckets
                 for i in range(len(GENRES)):
                     genre = GENRES[i]
 
                     if genre in s.genres:
+                        try:
+                            totalGenreNumVerses[i][s.numVerses] += 1
+                        except Exception as e:
+                            totalGenreNumVerses[i][s.numVerses] = 1
+
                         if genre in genreToSongs.keys():
                             genreToSongs[genre].append(s)
                         else:
@@ -108,7 +113,11 @@ for i in range(1,3):
 
                         genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
-            freqDists = BM.computeFreqDist(totalGenreLyrics, GENRES)
+            featureMap["totalGenreLyrics"] = totalGenreLyrics
+            featureMap["totalGenreNumVerses"] = totalGenreNumVerses
+            print(totalGenreNumVerses[1][4])
+            freqDists = BM.computeComplicatedFreqDist(featureMap, GENRES)
+
 
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
             totalAccuracy += accuracy

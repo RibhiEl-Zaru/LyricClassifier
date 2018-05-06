@@ -10,15 +10,48 @@ import ngram_FreqDist
 
 confMatrix = {}
 ## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
-def naive_bayes(reviewwords, genreList, freqDistLists):
+
+def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
+
+    defaultprob = math.log(0.0000000000001)
+    scores = [0 for i in range(len(genreList))]
+    toRet = None
+    highScore = -float("inf")
+    reviewwords = featureMap["reviewwords"]
+    numVerses = featureMap["numVerses"]
+
+    ngramFreqDists = freqMaps["ngramFreqDists"]
+    numVersesFreqDists = freqMaps["numVersesFreqDists"]
+
+    reviewWordLen = len(reviewwords)
+
+    for i in range(len(genreList)):
+        ngramFreqDist = ngramFreqDists[i]
+        numVersesFreqDist = numVersesFreqDists[i]
+        score = ngramFreqDist.get(reviewwords[0], defaultprob)
+        for j in range(1, reviewWordLen):
+            score += ngramFreqDist.get(reviewwords[j], defaultprob)
+
+        score += numVersesFreqDist.get(numVerses, defaultprob)*reviewWordLen
+
+        if score > highScore:
+            highScore = score
+            toRet = genreList[i]
+
+    return toRet
+
+def naive_bayes(freqMap, genreList, freqMaps):
     defaultprob = math.log(0.0000000000001)
     scores = [0 for i in range(len(genreList))]
 
     toRet = None
     highScore = -float("inf")
 
+    reviewwords = freqMap["reviewwords"]
+
+    ngramFreqDists = freqMaps["ngramFreqDists"]
     for i in range(len(genreList)):
-        freqDist = freqDistLists[i]
+        freqDist = ngramFreqDists[i]
         score = freqDist.get(reviewwords[0], defaultprob)
         for j in range(1, len(reviewwords)):
             score += freqDist.get(reviewwords[j], defaultprob)
@@ -31,17 +64,27 @@ def naive_bayes(reviewwords, genreList, freqDistLists):
 
 def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
 
+
+
     confusionMatrix =  [[0 for i in range(len(genreList))]for i in range(len(genreList))]
 
     numCorrect = 0
     guesses = [0 for i in range(len(genreList))]
     correctGuesses = [0 for i in range(len(genreList))]
     actual =  [0 for i in range(len(genreList))]
+
     for song in testData:
+
         reviewWords = ngram_FreqDist.ngrams(song.lyrics, ngramLen)
 
         positives = song.genres
-        result = naive_bayes(reviewWords, genreList, freqDistLists)
+
+        featureMap = {}
+        featureMap["reviewwords"] = reviewWords
+        featureMap["numVerses"] = song.numVerses
+
+        result = naiveBayesWithFeatures(featureMap, genreList, freqDistLists)
+
         guesses[genreList.index(result)] += 1
         c = genreList.index(result)
         for genre in positives:
@@ -116,6 +159,7 @@ def initializeConfusionMatrix(genreList):
 
 def getConfMatrix():
     return confMatrix
+
 def analyzeConfusionMatrix(confusionMatrix, genreList):
     global confMatrix
 
@@ -141,11 +185,81 @@ def analyzeConfusionMatrix(confusionMatrix, genreList):
     return confMatrix
 
 
-def computeFreqDist(totalGenreLyrics, GENRES):
+def computeComplicatedFreqDist(featureMap, GENRES):
+    totalGenreLyrics = featureMap["totalGenreLyrics"]
+    totalGenreNumVerses = featureMap["totalGenreNumVerses"]
 
     freqDists = [{} for i in range(len(GENRES))]
     genreTokenLists = [[] for i in range(len(GENRES))]
     genreTypeLists = [[] for i in range(len(GENRES))]
+
+    totalGenreVerses = [0 for i in range(len(GENRES))]
+    verseFreqDists = [{} for i in range(len(GENRES))]
+
+
+
+    allwords = []
+    '''
+    Compile all words, numTokens in genreTokenLists, num of distinct tokens in genreTypeLists
+    where the i refers to the genre in GENRES[i]
+    '''
+    for i in range(len(GENRES)):
+        genreTokenLists[i] = len(totalGenreLyrics[i])
+        genreTypeLists[i] = len(set(totalGenreLyrics[i]))
+        allwords.extend(list(set(totalGenreLyrics[i])))
+
+    '''
+    Initialize frequency count for the genres
+    '''
+    for i in range(len(GENRES)):
+        genreLyrics = totalGenreLyrics[i]
+        for word in genreLyrics:
+            currentFreqDist = freqDists[i]
+            try:
+                currentFreqDist[word] += 1
+            except Exception as e:
+                currentFreqDist[word] = 1
+
+        genreNumVerses =  totalGenreNumVerses[i] #Get map for numVerses in ith genre for verseFreqDists
+
+        for verseNum in genreNumVerses: #For possible num Verses
+            currentGenreFreqDist = verseFreqDists[i]
+            tot = genreNumVerses[verseNum]
+            currentGenreFreqDist[verseNum] = tot
+
+            totalGenreVerses[i] += tot
+
+    '''
+    Process the freqency distributions for each word
+    '''
+    for i in range(len(freqDists)):
+        freqDist = freqDists[i]
+        for key in freqDist:
+            freqDist[key] = math.log(freqDist[key]) - math.log(genreTokenLists[i])
+
+    for i in range(len(verseFreqDists)):
+        freqDist = verseFreqDists[i]
+        for key in freqDist:
+            freqDist[key] = math.log(freqDist[key]) - math.log(totalGenreVerses[i])
+
+    toRet = {}
+    toRet["ngramFreqDists"] = freqDists
+    toRet["numVersesFreqDists"] = verseFreqDists
+
+    return toRet
+
+
+def computeFreqDist(featureMap, GENRES):
+
+    totalGenreLyrics = featureMap["totalGenreLyrics"]
+    totalGenreNumVerses = featureMap["totalGenreNumVerses"]
+    print(totalGenreNumVerses)
+
+    freqDists = [{} for i in range(len(GENRES))]
+    genreTokenLists = [[] for i in range(len(GENRES))]
+    genreTypeLists = [[] for i in range(len(GENRES))]
+
+
 
     allwords = []
     '''
@@ -156,6 +270,8 @@ def computeFreqDist(totalGenreLyrics, GENRES):
         genreTokenLists[i] = len(totalGenreLyrics[i])
         genreTypeLists[i] = len(set(totalGenreLyrics[i]))
         allwords.extend(list(set(totalGenreLyrics[i])))
+
+    #for i in range(len(totalGenreNumVerses)):
 
     '''
     Initialize frequency count for the genres
