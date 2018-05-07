@@ -25,20 +25,25 @@ def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
 
     reviewwords = featureMap["reviewwords"]
     numVerses = featureMap["numVerses"]
+    numChoruses = featureMap["numChoruses"]
 
     ngramFreqDists = freqMaps["ngramFreqDists"]
     numVersesFreqDists = freqMaps["numVersesFreqDists"]
+    numChorusesFreqDists = freqMaps["numChorusesFreqDists"]
 
     reviewWordLen = len(reviewwords)
 
     for i in range(len(genreList)):
         ngramFreqDist = ngramFreqDists[i]
         numVersesFreqDist = numVersesFreqDists[i]
+        numChorusesFreqDist = numChorusesFreqDists[i]
+
         baseScore = ngramFreqDist.get(reviewwords[0], defaultprob)
         for j in range(1, reviewWordLen):
             baseScore += ngramFreqDist.get(reviewwords[j], defaultprob)
 
         advancedScore = baseScore + numVersesFreqDist.get(numVerses, defaultprob)*reviewWordLen
+        advancedScore += numChorusesFreqDist.get(numChoruses, defaultprob) * reviewWordLen
 
         if(baseScore > baseHighScore):
             baseHighScore = baseScore
@@ -61,6 +66,8 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
     actual =  [0 for i in range(len(genreList))]
 
     for song in testData:
+        if(len(song.lyrics)<ngramLen):
+            continue;
 
         reviewWords = ngram_FreqDist.ngrams(song.lyrics, ngramLen)
 
@@ -69,6 +76,7 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
         featureMap = {}
         featureMap["reviewwords"] = reviewWords
         featureMap["numVerses"] = song.numVerses
+        featureMap["numChoruses"] = song.numChoruses
 
         results = naiveBayesWithFeatures(featureMap, genreList, freqDistLists)
 
@@ -190,16 +198,20 @@ def analyzeConfusionMatrixes(confusionMatrixes, genreList):
 
 
 def computeFreqDist(featureMap, GENRES):
+    numGenres = len(GENRES)
     totalGenreLyrics = featureMap["totalGenreLyrics"]
     totalGenreNumVerses = featureMap["totalGenreNumVerses"]
+    totalGenreNumChoruses = featureMap["totalGenreNumChoruses"]
 
-    freqDists = [{} for i in range(len(GENRES))]
-    genreTokenLists = [[] for i in range(len(GENRES))]
-    genreTypeLists = [[] for i in range(len(GENRES))]
+    freqDists = [{} for i in range(numGenres)]
+    genreTokenLists = [[] for i in range(numGenres)]
+    genreTypeLists = [[] for i in range(numGenres)]
 
-    totalGenreVerses = [0 for i in range(len(GENRES))]
-    verseFreqDists = [{} for i in range(len(GENRES))]
+    totalGenreVerses = [0 for i in range(numGenres)]
+    totalGenreChoruses = [0 for i in range(numGenres)]
 
+    verseFreqDists = [{} for i in range(numGenres)]
+    chorusFreqDists = [{} for i in range(numGenres)]
 
 
     allwords = []
@@ -207,7 +219,7 @@ def computeFreqDist(featureMap, GENRES):
     Compile all words, numTokens in genreTokenLists, num of distinct tokens in genreTypeLists
     where the i refers to the genre in GENRES[i]
     '''
-    for i in range(len(GENRES)):
+    for i in range(numGenres):
         genreTokenLists[i] = len(totalGenreLyrics[i])
         genreTypeLists[i] = len(set(totalGenreLyrics[i]))
         allwords.extend(list(set(totalGenreLyrics[i])))
@@ -215,7 +227,7 @@ def computeFreqDist(featureMap, GENRES):
     '''
     Initialize frequency count for the genres
     '''
-    for i in range(len(GENRES)):
+    for i in range(numGenres):
         genreLyrics = totalGenreLyrics[i]
         for word in genreLyrics:
             currentFreqDist = freqDists[i]
@@ -225,13 +237,22 @@ def computeFreqDist(featureMap, GENRES):
                 currentFreqDist[word] = 1
 
         genreNumVerses =  totalGenreNumVerses[i] #Get map for numVerses in ith genre for verseFreqDists
-
         for verseNum in genreNumVerses: #For possible num Verses
             currentGenreFreqDist = verseFreqDists[i]
             tot = genreNumVerses[verseNum]
             currentGenreFreqDist[verseNum] = tot
 
             totalGenreVerses[i] += tot
+
+        genreNumChoruses =  totalGenreNumChoruses[i] #Get map for numChoruses in ith genre for chorusFreqDists
+
+        for chorusNum in genreNumChoruses:
+            currentGenreFreqDist = chorusFreqDists[i]
+            tot = genreNumChoruses[chorusNum]
+            currentGenreFreqDist[chorusNum] = tot
+
+            totalGenreChoruses[i] += tot
+
 
     '''
     Process the freqency distributions for each word
@@ -246,9 +267,15 @@ def computeFreqDist(featureMap, GENRES):
         for key in freqDist:
             freqDist[key] = math.log(freqDist[key]) - math.log(totalGenreVerses[i])
 
+    for i in range(len(chorusFreqDists)):
+        freqDist = chorusFreqDists[i]
+        for key in freqDist:
+            freqDist[key] = math.log(freqDist[key]) - math.log(totalGenreChoruses[i])
+
     toRet = {}
     toRet["ngramFreqDists"] = freqDists
     toRet["numVersesFreqDists"] = verseFreqDists
+    toRet["numChorusesFreqDists"] = chorusFreqDists
 
     return toRet
 
