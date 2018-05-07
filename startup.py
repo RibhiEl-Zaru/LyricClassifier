@@ -53,7 +53,7 @@ for i in range(1,3):
     for i in newsongcount:
         GENRES.append(i[0])
 
-    numLinesFreqGenerator.initializeNumLinesForGenere(GENRES)
+
     counts = [0 for i in range(numGenres)]
     totalGenreLyrics = [[] for i in range(numGenres)]
     totalGenreNumVerses = [{} for i in range(numGenres)]
@@ -72,6 +72,7 @@ for i in range(1,3):
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
     for i in range(2):
+        numLinesFreqGenerator.initialize(GENRES, 10)
         featureMap = {}
         try:
             total = 0
@@ -141,14 +142,18 @@ for i in range(1,3):
 
                         genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
-            print(numLinesFreqGenerator.bucketizeScore(70))
 
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
             featureMap["totalGenreNumChoruses"] = totalGenreNumChoruses
 
-            freqDists = BM.computeFreqDist(featureMap, GENRES)
 
+
+
+            freqDists = BM.computeFreqDist(featureMap, GENRES)
+            numLinesFreqMap = numLinesFreqGenerator.generateFrequencyMap()
+
+            freqDists["numLinesFreqDists"] = numLinesFreqMap
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
 
             for i in range(len(accuracy)):
