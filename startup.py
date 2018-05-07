@@ -14,22 +14,23 @@ import gensim
 from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
+import levelData
+import numLinesFreqGenerator
 #random.seed(50)
 
 #This file provides some basic code to get started with.
 
 folder = 'data/1001Albums1' #Replace with a folder of .pkl files containg Song objects
-GENRES = [
-'folk',
-'rap',
-'rock',
-'r&b',
-'country',
-'blues'
-]
+GENRES =[
+    'folk',
+    'rap',
+    'rock',
+    'r&b',
+    'country',
+    'blues'
+    ]
 
 iterations = 0
-
 
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
@@ -37,19 +38,13 @@ iterations = 0
 #It also creates a .txt file containing info for each song, and a log file to store output.
 #loaddata.loadDataFromAlbums(loaddata.getLarkin1000(folder), folder, folder + '.txt', folder + '.log')
 
-#load songs variable with 500 Song objects, using random cluster sampling\
+#load songs variable with 500 Song objects, using random cluster sampling
 for i in range(1,3):
+    numGenres = len(GENRES)
     iterations = 0
-    counts = [0 for i in range(len(GENRES))]
-    totalGenreLyrics = [[] for i in range(len(GENRES))]
-    totalGenreNumVerses = [{} for i in range(len(GENRES))]
-    genreNums = [0 for i in range(len(GENRES))]
-    allGenreLyrics = [[] for i in range(len(GENRES))]
-    totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
     ngramLen = i+1
     songs = load(folder, GENRES)
-
     songs=levelData.levelData(songs, 215, GENRES)
     newsongcount=levelData.songCount(songs, GENRES)
     print(newsongcount)
@@ -57,6 +52,21 @@ for i in range(1,3):
     GENRES = []
     for i in newsongcount:
         GENRES.append(i[0])
+
+
+    counts = [0 for i in range(numGenres)]
+    totalGenreLyrics = [[] for i in range(numGenres)]
+    totalGenreNumVerses = [{} for i in range(numGenres)]
+    totalGenreNumChoruses = [{} for i in range(numGenres)]
+
+    totalGenreWordPerSec = [[] for i in range(numGenres)]
+
+
+    genreNums = [0 for i in range(numGenres)]
+    allGenreLyrics = [[] for i in range(numGenres)]
+
+    totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
+
 
 
     print (ngramLen,"-gram analysis")
@@ -76,6 +86,8 @@ for i in range(1,3):
                 total += 1
                 numGenres = 0
                 sentences = s.lyrics.rstrip().splitlines()
+                songGenre = ''.join(s.genres)
+                index = GENRES.index(songGenre)
                 #print("    SENTENCES    ")
                 #print(sentences)
                 #Build the sentences that we'd need to add
@@ -97,6 +109,9 @@ for i in range(1,3):
 
                 s.setnGrams(nGrams)
                 # Populate respective genre buckets
+
+                numLinesFreqGenerator.addLineNum(s.numLines) #Add numlines to list containing all totalLine Numbers
+
                 for i in range(len(GENRES)):
                     genre = GENRES[i]
 
@@ -106,10 +121,18 @@ for i in range(1,3):
                         except Exception as e:
                             totalGenreNumVerses[i][s.numVerses] = 1
 
+                        try:
+                            totalGenreNumChoruses[i][s.numChoruses] += 1
+                        except Exception as e:
+                            totalGenreNumChoruses[i][s.numChoruses] = 1
+
                         if genre in genreToSongs.keys():
                             genreToSongs[genre].append(s)
                         else:
                             genreToSongs[genre] = [s]
+
+                        numLinesFreqGenerator.addLinesForGenre(s.numLines, i) #Add numLines for respective genre
+
                         counts[i]+= 1 #Update how many of genre X songs there are
                         numGenres += 1 #Keeps track of number of genres for each song
 
@@ -122,6 +145,7 @@ for i in range(1,3):
 
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
+            featureMap["totalGenreNumChoruses"] = totalGenreNumChoruses
 
 
 
@@ -141,7 +165,7 @@ for i in range(1,3):
             raise
 
 
-
+        '''
 
                                 DETAILS OF GENERATED LISTS
 
@@ -154,7 +178,7 @@ for i in range(1,3):
 
 
 
-
+        '''
 
         #percentages = [round(i/sum(counts) * 100 , 4) for i in counts]
 
@@ -172,6 +196,15 @@ for i in range(1,3):
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
 print("True random success rate is: ", round(binomialProbab,4))
+
+
+
+
+def calcTotal(genreToSongs):
+    tot = 0
+    for key in genreToSongs.keys():
+        tot += len(genreToSongs[key])
+    return tot
 
 
 allGenreLyrics = [[] for i in range(len(GENRES))]
@@ -233,11 +266,7 @@ print ("Percent correct is: " , correct/total)
 
 
 
-def calcTotal(genreToSongs):
-    tot = 0
-    for key in genreToSongs.keys():
-        tot += len(genreToSongs[key])
-    return tot
+
 
 
 
