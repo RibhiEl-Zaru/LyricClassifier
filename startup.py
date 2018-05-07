@@ -91,25 +91,22 @@ for i in range(1,3):
                 #print(sentences)
                 #Build the sentences that we'd need to add
                 toExtend = []
-                tokSentences = []
+                nGrams = []
                 for sentence in sentences:
-                    tokSentence = ngram_FreqDist.ngrams(sentence, ngramLen)
-                    for word in tokSentence:
-                        allGenreLyrics[index].append(word)
-                    tokSentences.append(tokSentence)
+                    nGram = ngram_FreqDist.ngrams(sentence, ngramLen)
+                    nGrams.append(nGram)
                     words = sentence.split()
                     toExtend.append(list(set([w for w in words if w not in stops])))
 
                 #print("    toExtend    ")
                 #print(toExtend)
 
-                # To extend is the list of lists with all words tokenized
-                allTokSentences.extend(tokSentences)
+                # To extend is the list of lists with all words tokenize
                 allWords = []
                 for sentList in toExtend:
                     allWords.extend(sentList)
 
-                s.setTokenizedSentences(tokSentences)
+                s.setnGrams(nGrams)
                 # Populate respective genre buckets
 
                 numLinesFreqGenerator.addLineNum(s.numLines) #Add numlines to list containing all totalLine Numbers
@@ -144,9 +141,8 @@ for i in range(1,3):
 
                         genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
+            print(numLinesFreqGenerator.bucketizeScore(70))
 
-            allLineNums = numLinesFreqGenerator.getAllLineNums()
-            
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
             featureMap["totalGenreNumChoruses"] = totalGenreNumChoruses
@@ -205,9 +201,28 @@ def calcTotal(genreToSongs):
         tot += len(genreToSongs[key])
     return tot
 
-'''
-'''
+
+allGenreLyrics = [[] for i in range(len(GENRES))]
+songs = load(folder, GENRES)
+trainingSet, testSet = train.train_test(songs, GENRES)
+allTokSentences = []
+for s in trainingSet:
+    tokSentences = []
+    sentences = s.lyrics.rstrip().splitlines()
+    songGenre = ''.join(s.genres)
+    index = GENRES.index(songGenre)
+    for sentence in sentences:
+        tokSentence = word_tokenize(sentence)
+        if len(tokSentence) == 0:
+            continue
+        tokSentences.append(tokSentence)
+        for word in tokSentence:
+            allGenreLyrics[index].append(word)
+    s.setTokenizedSentences(tokSentences)
+    allTokSentences.extend(tokSentences)
+
 model = gensim.models.Word2Vec(allTokSentences, size=100, window=5, min_count=1, workers=4)
+##model.save("word2vecModel.model")
 allGenreVectors = [[] for i in range(len(GENRES))]
 for i in range(len(GENRES)):
     vector = np.zeros((100,), dtype=float)
@@ -217,18 +232,27 @@ for i in range(len(GENRES)):
     divisor = np.full((100,), len(allGenreLyrics[i]))
     vector = np.divide(vector,divisor)
     allGenreVectors[i] = vector
-print(allGenreVectors[0])
 
-total=0
-right=0
-for s in trainingSet:
+correct = 0.0
+total = 0.0
+for s in testSet:
+    sentences = s.lyrics.rstrip().splitlines()
+    songGenre = ''.join(s.genres)
+    index = GENRES.index(songGenre)
+    tokSentences = []
+    for sentence in sentences:
+        tokSentence = word_tokenize(sentence)
+        tokSentences.append(tokSentence)
+    s.setTokenizedSentences(tokSentences)
+
     songVector = s.vectorizeSong(model)
-    #print(songVector)
+    correctGenre = s.genres[0]
     answer = s.returnVectorGenre(songVector, allGenreVectors)
-    if(answer==s.genres[0]):
-        right+=1
-    total+=1
-print(right/float(total))
+
+    if str(correctGenre) == answer:
+        correct += 1
+    total += 1
+print ("Percent correct is: " , correct/total)
 
 
 ##print(model.wv['love'])

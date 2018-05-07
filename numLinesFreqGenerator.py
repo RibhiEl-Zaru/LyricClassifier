@@ -22,6 +22,17 @@ def addLineNum(numLines):
         maximumLines = numLines
 
 
+def bucketizeScore(score):
+    print(maximumLines)
+    print(minimumLines)
+    numer = score - minimumLines
+
+    denom = maximumLines - minimumLines
+    print(numer)
+    print(denom)
+    print(score)
+    score = numer/denom
+    return score
 
 def addLinesForGenre(numLines, index):
     numLinesForGenre[index].append(numLines)

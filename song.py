@@ -40,6 +40,7 @@ class Song(object):
         self.numVerses = 0
         self.numLines = 0
         self.numChoruses = 0
+        self.nGrams = None
         self.tokenizedSentences = None
         self.songVector = None
 
@@ -142,9 +143,11 @@ class Song(object):
         return freq
 
 
+    def setnGrams(self, sents):
+        self.nGrams = sents
+
     def setTokenizedSentences(self, sents):
         self.tokenizedSentences = sents
-
 
     def saveLyrics(self, filename):
     #Saves title artist, lyrics to file at filename (creates a file if none exists)
@@ -168,18 +171,27 @@ class Song(object):
         pickle.dump(self, f, protocol=2)
 
     def vectorizeSong(self, model):
+        word_vectors = model.wv
         words = []
+        notFound = 0
         vector = np.zeros((100,), dtype=float)
         for sent in self.tokenizedSentences:
             for word in sent:
                 words.append(word)
+        if len(words) == 0:
+            return np.zeros((100,), dtype=float)
         for word in words:
-            wordVector = model.wv[word]
-            vector = np.add(vector,wordVector)
-        divisor = np.full((100,), len(words), dtype=float)
+            if word in word_vectors.vocab:
+                wordVector = model.wv[str(word)]
+                vector = np.add(vector,wordVector)
+            else:
+                notFound += 1
+
+        divisor = np.full((100,), (len(words) - notFound), dtype=float)
         vector = np.divide(vector,divisor)
         self.songVector = vector
         return vector
+
 
     def returnVectorGenre(self, wordVector, allGenreVectors):
         min = 1
@@ -189,7 +201,8 @@ class Song(object):
             if (distance < min):
                 min = distance
                 index = i
-        return GENRES[i]
+        return GENRES[index]
+
 
 
 
