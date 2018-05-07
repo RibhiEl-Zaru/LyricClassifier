@@ -66,6 +66,8 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
     actual =  [0 for i in range(len(genreList))]
 
     for song in testData:
+        if(len(song.lyrics)<ngramLen):
+            continue;
 
         reviewWords = ngram_FreqDist.ngrams(song.lyrics, ngramLen)
 

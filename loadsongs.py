@@ -60,7 +60,7 @@ def load(folder, genres=[]):
 
                     numOfGenres = len(s.genres)
                     choice = random.randint(0,numOfGenres-1)
-                    newGenre.append(s.genres[choice])
+                    newGenre.append(s.genres[0])
                     s.genres = newGenre
                     songs.append(s)
         return songs
