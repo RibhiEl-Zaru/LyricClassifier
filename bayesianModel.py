@@ -8,15 +8,21 @@ falseNegKey = "falseNeg"
 numIterationsKey = "numIters"
 import ngram_FreqDist
 
-confMatrix = {}
+confMatrixes = [{}, {}] # First map is basic bayes, second map is bayes with features
 ## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
 
 def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
 
     defaultprob = math.log(0.0000000000001)
     scores = [0 for i in range(len(genreList))]
-    toRet = None
-    highScore = -float("inf")
+
+    baseReturn = None
+    advancedReturn = None
+
+    baseHighScore = -float("inf")
+    advancedHighScore = -float("inf")
+
+
     reviewwords = featureMap["reviewwords"]
     numVerses = featureMap["numVerses"]
 
@@ -28,49 +34,30 @@ def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
     for i in range(len(genreList)):
         ngramFreqDist = ngramFreqDists[i]
         numVersesFreqDist = numVersesFreqDists[i]
-        score = ngramFreqDist.get(reviewwords[0], defaultprob)
+        baseScore = ngramFreqDist.get(reviewwords[0], defaultprob)
         for j in range(1, reviewWordLen):
-            score += ngramFreqDist.get(reviewwords[j], defaultprob)
+            baseScore += ngramFreqDist.get(reviewwords[j], defaultprob)
 
-        score += numVersesFreqDist.get(numVerses, defaultprob)*reviewWordLen
+        advancedScore = baseScore + numVersesFreqDist.get(numVerses, defaultprob)*reviewWordLen
 
-        if score > highScore:
-            highScore = score
-            toRet = genreList[i]
+        if(baseScore > baseHighScore):
+            baseHighScore = baseScore
+            baseReturn = genreList[i]
 
-    return toRet
+        if(advancedScore > advancedHighScore):
+            advancedHighScore = advancedScore
+            advancedReturn = genreList[i]
 
-def naive_bayes(freqMap, genreList, freqMaps):
-    defaultprob = math.log(0.0000000000001)
-    scores = [0 for i in range(len(genreList))]
+    return [baseReturn, advancedReturn]
 
-    toRet = None
-    highScore = -float("inf")
-
-    reviewwords = freqMap["reviewwords"]
-
-    ngramFreqDists = freqMaps["ngramFreqDists"]
-    for i in range(len(genreList)):
-        freqDist = ngramFreqDists[i]
-        score = freqDist.get(reviewwords[0], defaultprob)
-        for j in range(1, len(reviewwords)):
-            score += freqDist.get(reviewwords[j], defaultprob)
-
-        if score > highScore:
-            highScore = score
-            toRet = genreList[i]
-
-    return toRet
 
 def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
 
+    confusionMatrixes = [ [[0 for i in range(len(genreList))]for i in range(len(genreList))] for i in range(len(confMatrixes))]
 
-
-    confusionMatrix =  [[0 for i in range(len(genreList))]for i in range(len(genreList))]
-
-    numCorrect = 0
-    guesses = [0 for i in range(len(genreList))]
-    correctGuesses = [0 for i in range(len(genreList))]
+    numCorrect = [0 for i in range(len(confMatrixes))]
+    guesses = [[0 for i in range(len(genreList))]for i in range(len(confMatrixes))]
+    correctGuesses = [[0 for i in range(len(genreList))]for i in range(len(confMatrixes))]
     actual =  [0 for i in range(len(genreList))]
 
     for song in testData:
@@ -83,25 +70,31 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
         featureMap["reviewwords"] = reviewWords
         featureMap["numVerses"] = song.numVerses
 
-        result = naiveBayesWithFeatures(featureMap, genreList, freqDistLists)
+        results = naiveBayesWithFeatures(featureMap, genreList, freqDistLists)
 
-        guesses[genreList.index(result)] += 1
-        c = genreList.index(result)
-        for genre in positives:
-            r = genreList.index(genre)
-            confusionMatrix[r][c]+= 1
+        for i in range(len(results)):
+            result = results[i]
+            guesses[i][genreList.index(result)] += 1
 
-        for genre in positives:
-            if genre == result:
-                numCorrect += 1
-                correctGuesses[genreList.index(result)] += 1
-            actual[genreList.index(genre)] += 1
-    accuracy = numCorrect/len(testData)
-    x = analyzeConfusionMatrix(confusionMatrix, genreList)
+            c = genreList.index(result)
+            for genre in positives:
+                r = genreList.index(genre)
+                confusionMatrixes[i][r][c]+= 1
+
+            for genre in positives:
+                if genre == result:
+                    numCorrect[i] += 1
+                    correctGuesses[i][genreList.index(result)] += 1
+                actual[genreList.index(genre)] += 1
+
+    x = analyzeConfusionMatrixes(confusionMatrixes, genreList)
     #displayPerformanceInterpretation(x)
 
     #for row in range(len(confusionMatrix[0])):
         #print(confusionMatrix[row])
+
+
+    accuracy = [correct/len(testData) for correct in numCorrect]
     '''
     print("Genres\t", genreList)
     print("Guesses\t", guesses)
@@ -113,7 +106,7 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
     return accuracy
 
 
-def displayPerformanceInterpretation(genreResultsMap, GENRES):
+def displayPerformanceInterpretation(confMatrixes, GENRES):
     '''
         Error    : the number of all incorrect predictions divided by the total number of the dataset. (FP + FN)/(TP + FP + TN + FN)
         ACCURACY : calculated as the number of all correct predictions divided by the total number of the dataset. (TP + TN)/(TP + FP + TN + FN)
@@ -126,68 +119,77 @@ def displayPerformanceInterpretation(genreResultsMap, GENRES):
 
 
     '''
-    print(" GENRE | ERROR | ACCURACY | RECALL | SPECIFICITY | PRECISON | FSCORE ")
-    print("_____________________________________________________________")
-    for genre, info in genreResultsMap.items():
-        if(genre in GENRES):
-            tp = info[truePosKey]
-            tn = info[trueNegKey]
-            fp = info[falsePosKey]
-            fn = info[falseNegKey]
-            err = calcErr(fp, fn, tp, tn)
-            acc = calcAcc(fp, fn, tp, tn)
-            recall = calcRecall(tp, fn)
-            specificity = calcSpecificity(tn, fn)
-            precision = calcPrecision(tp, fp)
+    index = 0
+    for genreResultsMap in confMatrixes:
+        print("ConfidenceMatrix number " , index)
+        index += 1
+        print(" GENRE | ERROR | ACCURACY | RECALL | SPECIFICITY | PRECISON | FSCORE ")
+        print("_____________________________________________________________")
+        for genre, info in genreResultsMap.items():
+            if(genre in GENRES):
+                tp = info[truePosKey]
+                tn = info[trueNegKey]
+                fp = info[falsePosKey]
+                fn = info[falseNegKey]
+                err = calcErr(fp, fn, tp, tn)
+                acc = calcAcc(fp, fn, tp, tn)
+                recall = calcRecall(tp, fn)
+                specificity = calcSpecificity(tn, fn)
+                precision = calcPrecision(tp, fp)
 
-            fScore = calcFScore(.5, precision, recall)
+                fScore = calcFScore(.5, precision, recall)
 
-            print(genre + "\t" + str(round(err,2)) + "\t" + str(round(acc,2)) + "\t" + str(round(recall,2)) + "\t" + str(round(specificity,2)) +
-            "\t" + str(round(precision,2)) + "\t" +str(round(fScore,2)))
-    print("\n\n\n")
+                print(genre + "\t" + str(round(err,2)) + "\t" + str(round(acc,2)) + "\t" + str(round(recall,2)) + "\t" + str(round(specificity,2)) +
+                "\t" + str(round(precision,2)) + "\t" +str(round(fScore,2)))
+        print("\n\n\n")
 
 def initializeConfusionMatrix(genreList):
-    confMatrix[numIterationsKey] = 0
+    for confMatrix in confMatrixes:
 
-    for i in range(len(genreList)):
-            toAdd = {}
-            genreOfInt = genreList[i]
-            toAdd[truePosKey] = 0
-            toAdd[falsePosKey] = 0
-            toAdd[falseNegKey] = 0
-            toAdd[trueNegKey] = 0
-            confMatrix[genreOfInt] = toAdd
+        confMatrix[numIterationsKey] = 0
+
+        for i in range(len(genreList)):
+                toAdd = {}
+                genreOfInt = genreList[i]
+                toAdd[truePosKey] = 0
+                toAdd[falsePosKey] = 0
+                toAdd[falseNegKey] = 0
+                toAdd[trueNegKey] = 0
+                confMatrix[genreOfInt] = toAdd
 
 
 def getConfMatrix():
-    return confMatrix
+    return confMatrixes
 
-def analyzeConfusionMatrix(confusionMatrix, genreList):
-    global confMatrix
+def analyzeConfusionMatrixes(confusionMatrixes, genreList):
+    global confMatrixes
 
-    listSum = compute2dSum(confusionMatrix)
+    for i in range(len( confusionMatrixes)):
+        confMatrix = confMatrixes[i]
+        confusionMatrix = confusionMatrixes[i]
+        listSum = compute2dSum(confusionMatrix)
 
-    confMatrix[numIterationsKey] += 1
-    for i in range(len(genreList)):
-        genreOfInt = genreList[i]
-        toAlter = confMatrix[genreOfInt]
-        colSum = sum(confusionMatrix[:][i])
-        rowSum = sum(confusionMatrix[i])
-        truePos = confusionMatrix[i][i]
-        toAlter[truePosKey] += truePos
-        falsePos = colSum - truePos
-        toAlter[falsePosKey] += falsePos
-        falseNeg = rowSum - truePos
-        toAlter[falseNegKey] += falseNeg
-        trueNeg = listSum -falseNeg  - truePos - falsePos
-        toAlter[trueNegKey] += trueNeg
+        confMatrix[numIterationsKey] += 1
+        for i in range(len(genreList)):
+            genreOfInt = genreList[i]
+            toAlter = confMatrix[genreOfInt]
+            colSum = sum(confusionMatrix[:][i])
+            rowSum = sum(confusionMatrix[i])
+            truePos = confusionMatrix[i][i]
+            toAlter[truePosKey] += truePos
+            falsePos = colSum - truePos
+            toAlter[falsePosKey] += falsePos
+            falseNeg = rowSum - truePos
+            toAlter[falseNegKey] += falseNeg
+            trueNeg = listSum -falseNeg  - truePos - falsePos
+            toAlter[trueNegKey] += trueNeg
 
 
 
-    return confMatrix
+    return confMatrixes
 
 
-def computeComplicatedFreqDist(featureMap, GENRES):
+def computeFreqDist(featureMap, GENRES):
     totalGenreLyrics = featureMap["totalGenreLyrics"]
     totalGenreNumVerses = featureMap["totalGenreNumVerses"]
 
@@ -251,51 +253,6 @@ def computeComplicatedFreqDist(featureMap, GENRES):
     return toRet
 
 
-def computeFreqDist(featureMap, GENRES):
-
-    totalGenreLyrics = featureMap["totalGenreLyrics"]
-    totalGenreNumVerses = featureMap["totalGenreNumVerses"]
-    print(totalGenreNumVerses)
-
-    freqDists = [{} for i in range(len(GENRES))]
-    genreTokenLists = [[] for i in range(len(GENRES))]
-    genreTypeLists = [[] for i in range(len(GENRES))]
-
-
-
-    allwords = []
-    '''
-    Compile all words, numTokens in genreTokenLists, num of distinct tokens in genreTypeLists
-    where the i refers to the genre in GENRES[i]
-    '''
-    for i in range(len(totalGenreLyrics)):
-        genreTokenLists[i] = len(totalGenreLyrics[i])
-        genreTypeLists[i] = len(set(totalGenreLyrics[i]))
-        allwords.extend(list(set(totalGenreLyrics[i])))
-
-    #for i in range(len(totalGenreNumVerses)):
-
-    '''
-    Initialize frequency count for the genres
-    '''
-    for i in range(len(totalGenreLyrics)):
-        genreLyrics = totalGenreLyrics[i]
-        for word in genreLyrics:
-            currentFreqDist = freqDists[i]
-            try:
-                currentFreqDist[word] += 1
-            except Exception as e:
-                currentFreqDist[word] = 1
-    '''
-    Process the freqency distributions for each word
-    '''
-    for i in range(len(freqDists)):
-        freqDist = freqDists[i]
-        for key in freqDist:
-            freqDist[key] = math.log(freqDist[key]) - math.log(genreTokenLists[i])
-
-    return freqDists
-
 
 def calcErr(fp, fn, tp, tn):
     return (fp + fn)/(tp + tn + fn + fp)
@@ -323,6 +280,7 @@ def calcFScore(beta, prec, recall):
 
 
 def compute2dSum(toCount):
+    print(toCount)
     toRet = 0
     for i in range(len(toCount)):
         for j in range(len(toCount[0])):
