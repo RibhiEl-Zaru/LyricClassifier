@@ -15,6 +15,7 @@ from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
 import levelData
+import numLinesFreqGenerator
 #random.seed(50)
 
 #This file provides some basic code to get started with.
@@ -41,7 +42,6 @@ iterations = 0
 for i in range(1,3):
     numGenres = len(GENRES)
     iterations = 0
-<<<<<<< HEAD
 
     ngramLen = i+1
     songs = load(folder, GENRES)
@@ -52,22 +52,19 @@ for i in range(1,3):
     GENRES = []
     for i in newsongcount:
         GENRES.append(i[0])
-    print(GENRES)
 
-    counts = [0 for i in range(len(GENRES))]
-    totalGenreLyrics = [[] for i in range(len(GENRES))]
-    totalGenreNumVerses = [{} for i in range(len(GENRES))]
-    genreNums = [0 for i in range(len(GENRES))]
-    allGenreLyrics = [[] for i in range(len(GENRES))]
-=======
+    numLinesFreqGenerator.initializeNumLinesForGenere(GENRES)
     counts = [0 for i in range(numGenres)]
     totalGenreLyrics = [[] for i in range(numGenres)]
     totalGenreNumVerses = [{} for i in range(numGenres)]
     totalGenreNumChoruses = [{} for i in range(numGenres)]
+
     totalGenreWordPerSec = [[] for i in range(numGenres)]
+
+
     genreNums = [0 for i in range(numGenres)]
     allGenreLyrics = [[] for i in range(numGenres)]
->>>>>>> efba85befb30f4fd7c69e9384c72275b6e4b363a
+
     totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
 
@@ -114,6 +111,9 @@ for i in range(1,3):
 
                 s.setTokenizedSentences(tokSentences)
                 # Populate respective genre buckets
+
+                numLinesFreqGenerator.addLineNum(s.numLines) #Add numlines to list containing all totalLine Numbers
+
                 for i in range(len(GENRES)):
                     genre = GENRES[i]
 
@@ -132,6 +132,9 @@ for i in range(1,3):
                             genreToSongs[genre].append(s)
                         else:
                             genreToSongs[genre] = [s]
+
+                        numLinesFreqGenerator.addLinesForGenre(s.numLines, i) #Add numLines for respective genre
+
                         counts[i]+= 1 #Update how many of genre X songs there are
                         numGenres += 1 #Keeps track of number of genres for each song
 
@@ -141,6 +144,9 @@ for i in range(1,3):
 
                         genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
+
+            allLineNums = numLinesFreqGenerator.getAllLineNums()
+            
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
             featureMap["totalGenreNumChoruses"] = totalGenreNumChoruses
