@@ -79,8 +79,13 @@ class Song(object):
         return removed
         '''
 
+    def getWordsPerSecond(self):
+        allToks = self.tokens()
+        numWords = len(allToks)
+        return numWords/(self.duration_ms/1000)
+
     def tokens(self):
-        return word_tokenize(self.simpleLyrics())
+        return word_tokenize(self.lyrics)
 #throws out all lyrics after mismatched bracket
 
     #Must handle this to update self, and
