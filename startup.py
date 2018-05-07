@@ -14,22 +14,23 @@ import gensim
 from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
+import levelData
+import numLinesFreqGenerator
 #random.seed(50)
 
 #This file provides some basic code to get started with.
 
 folder = 'data/1001Albums1' #Replace with a folder of .pkl files containg Song objects
-GENRES = [
-'folk',
-'rap',
-'rock',
-'r&b',
-'country',
-'blues'
-]
+GENRES =[
+    'folk',
+    'rap',
+    'rock',
+    'r&b',
+    'country',
+    'blues'
+    ]
 
 iterations = 0
-
 
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
@@ -40,16 +41,34 @@ iterations = 0
 #load songs variable with 500 Song objects, using random cluster sampling\
 '''
 for i in range(1,3):
+    numGenres = len(GENRES)
     iterations = 0
-    counts = [0 for i in range(len(GENRES))]
-    totalGenreLyrics = [[] for i in range(len(GENRES))]
-    totalGenreNumVerses = [{} for i in range(len(GENRES))]
-    genreNums = [0 for i in range(len(GENRES))]
-    allGenreLyrics = [[] for i in range(len(GENRES))]
-    totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
     ngramLen = i+1
     songs = load(folder, GENRES)
+    songs=levelData.levelData(songs, 215, GENRES)
+    newsongcount=levelData.songCount(songs, GENRES)
+    print(newsongcount)
+
+    GENRES = []
+    for i in newsongcount:
+        GENRES.append(i[0])
+
+    numLinesFreqGenerator.initializeNumLinesForGenere(GENRES)
+    counts = [0 for i in range(numGenres)]
+    totalGenreLyrics = [[] for i in range(numGenres)]
+    totalGenreNumVerses = [{} for i in range(numGenres)]
+    totalGenreNumChoruses = [{} for i in range(numGenres)]
+
+    totalGenreWordPerSec = [[] for i in range(numGenres)]
+
+
+    genreNums = [0 for i in range(numGenres)]
+    allGenreLyrics = [[] for i in range(numGenres)]
+
+    totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
+
+
 
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
@@ -88,6 +107,9 @@ for i in range(1,3):
 
                 s.setnGrams(nGrams)
                 # Populate respective genre buckets
+
+                numLinesFreqGenerator.addLineNum(s.numLines) #Add numlines to list containing all totalLine Numbers
+
                 for i in range(len(GENRES)):
                     genre = GENRES[i]
 
@@ -97,10 +119,18 @@ for i in range(1,3):
                         except Exception as e:
                             totalGenreNumVerses[i][s.numVerses] = 1
 
+                        try:
+                            totalGenreNumChoruses[i][s.numChoruses] += 1
+                        except Exception as e:
+                            totalGenreNumChoruses[i][s.numChoruses] = 1
+
                         if genre in genreToSongs.keys():
                             genreToSongs[genre].append(s)
                         else:
                             genreToSongs[genre] = [s]
+
+                        numLinesFreqGenerator.addLinesForGenre(s.numLines, i) #Add numLines for respective genre
+
                         counts[i]+= 1 #Update how many of genre X songs there are
                         numGenres += 1 #Keeps track of number of genres for each song
 
@@ -110,10 +140,14 @@ for i in range(1,3):
 
                         genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
+            print(numLinesFreqGenerator.bucketizeScore(70))
+
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
+            featureMap["totalGenreNumChoruses"] = totalGenreNumChoruses
 
             freqDists = BM.computeFreqDist(featureMap, GENRES)
+
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
 
             for i in range(len(accuracy)):
@@ -166,7 +200,11 @@ def calcTotal(genreToSongs):
         tot += len(genreToSongs[key])
     return tot
 
+<<<<<<< HEAD
 '''
+=======
+
+>>>>>>> ba87d30cbe832fe6c3de7a3d979d71320c200b9b
 allGenreLyrics = [[] for i in range(len(GENRES))]
 songs = load(folder, GENRES)
 trainingSet, testSet = train.train_test(songs, GENRES)
