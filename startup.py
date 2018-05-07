@@ -14,22 +14,22 @@ import gensim
 from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
+import levelData
 #random.seed(50)
 
 #This file provides some basic code to get started with.
 
 folder = 'data/1001Albums1' #Replace with a folder of .pkl files containg Song objects
-GENRES = [
-'folk',
-'rap',
-'rock',
-'r&b',
-'country',
-'blues'
-]
+GENRES =[
+    'folk',
+    'rap',
+    'rock',
+    'r&b',
+    'country',
+    'blues'
+    ]
 
 iterations = 0
-
 
 
 #The line below re-creates a dataset from the RockListMusic.com list and loads them into the directory specified by the 'folder' var.
@@ -40,6 +40,18 @@ iterations = 0
 #load songs variable with 500 Song objects, using random cluster sampling
 for i in range(1,3):
     iterations = 0
+
+    ngramLen = i+1
+    songs = load(folder, GENRES)
+    songs=levelData.levelData(songs, 215, GENRES)
+    newsongcount=levelData.songCount(songs, GENRES)
+    print(newsongcount)
+
+    GENRES = []
+    for i in newsongcount:
+        GENRES.append(i[0])
+    print(GENRES)
+
     counts = [0 for i in range(len(GENRES))]
     totalGenreLyrics = [[] for i in range(len(GENRES))]
     totalGenreNumVerses = [{} for i in range(len(GENRES))]
@@ -47,8 +59,7 @@ for i in range(1,3):
     allGenreLyrics = [[] for i in range(len(GENRES))]
     totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
-    ngramLen = i+1
-    songs = load(folder, GENRES)
+
 
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
