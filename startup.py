@@ -13,6 +13,7 @@ import train_test_sets as train
 import gensim
 from ngram_FreqDist import *
 import ngram_FreqDist
+import numpy as np
 #random.seed(50)
 
 #This file provides some basic code to get started with.
@@ -167,7 +168,27 @@ def calcTotal(genreToSongs):
 
 '''
 '''
-##model = gensim.models.Word2Vec(allTokSentences, size=100, window=5, min_count=1, workers=4)
+model = gensim.models.Word2Vec(allTokSentences, size=100, window=5, min_count=1, workers=4)
+allGenreVectors = [[] for i in range(len(GENRES))]
+for i in range(len(GENRES)):
+    vector = np.zeros((100,), dtype=float)
+    for j in range(len(allGenreLyrics[i])):
+        wordArray = model.wv[allGenreLyrics[i][j]]
+        vector = np.add(vector,wordArray)
+    divisor = np.full((100,), len(allGenreLyrics[i]))
+    vector = np.divide(vector,divisor)
+    allGenreVectors[i] = vector
+print(allGenreVectors[0])
+
+
+for s in trainingSet:
+    songVector = s.vectorizeSong(model)
+    print(songVector)
+    answer = s.returnVectorGenre(songVector, allGenreVectors)
+    print(answer)
+    break
+
+
 ##print(model.wv['love'])
 ##print(model.wv['and'])
 

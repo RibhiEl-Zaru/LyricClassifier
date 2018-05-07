@@ -3,9 +3,11 @@ import pickle as pickle
 from nltk.tokenize import word_tokenize
 import os
 import nltk
+import numpy as np
+import scipy
 
 GENRES = [
-'pop',
+'folk',
 'rap',
 'rock',
 'r&b',
@@ -38,7 +40,8 @@ class Song(object):
         self.numVerses = 0
         self.numLines = 0
         self.numChoruses = 0
-        self.tokenizedSentences = None 
+        self.tokenizedSentences = None
+        self.songVector = None
 
         if len(genres)==0 or notfound=='add':
             artistgenres = spotifyclient.getArtistProperties(self.artist, GENRES)
@@ -158,6 +161,32 @@ class Song(object):
                 pass
             f = open(os.path.join(subdirectory, filename), 'wb+')
         pickle.dump(self, f, protocol=2)
+
+    def vectorizeSong(self, model):
+        words = []
+        vector = np.zeros((100,), dtype=float)
+        for sent in self.tokenizedSentences:
+            for word in sent:
+                words.append(word)
+        for word in words:
+            wordVector = model.wv[word]
+            vector = np.add(vector,wordVector)
+        divisor = np.full((100,), len(words), dtype=float)
+        vector = np.divide(vector,divisor)
+        self.songVector = vector
+        return vector
+
+    def returnVectorGenre(self, wordVector, allGenreVectors):
+        min = 1
+        index = 0
+        for i in range(len(allGenreVectors)):
+            distance = scipy.spatial.distance.cosine(wordVector,allGenreVectors[i])
+            if (distance < min):
+                min = distance
+                index = i
+        return GENRES[i]
+
+
 
     @staticmethod
     def openLyrics(filename):
