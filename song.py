@@ -41,10 +41,6 @@ class Song(object):
         self.numLines = 0
         self.numChoruses = 0
         self.nGrams = None
-<<<<<<< HEAD
-=======
-        self.tokenizedSentences = None
->>>>>>> ba87d30cbe832fe6c3de7a3d979d71320c200b9b
         self.songVector = None
         self.tokenizedSentences = None
 
@@ -84,13 +80,8 @@ class Song(object):
         return removed
         '''
 
-    def getWordsPerSecond(self):
-        allToks = self.tokens()
-        numWords = len(allToks)
-        return numWords/(self.duration_ms/1000)
-
     def tokens(self):
-        return word_tokenize(self.lyrics)
+        return word_tokenize(self.simpleLyrics())
 #throws out all lyrics after mismatched bracket
 
     #Must handle this to update self, and
@@ -196,7 +187,6 @@ class Song(object):
         self.songVector = vector
         return vector
 
-
     def returnVectorGenre(self, wordVector, allGenreVectors):
         min = 1
         index = 0
@@ -206,10 +196,6 @@ class Song(object):
                 min = distance
                 index = i
         return GENRES[index]
-<<<<<<< HEAD
-=======
-
->>>>>>> ba87d30cbe832fe6c3de7a3d979d71320c200b9b
 
 
 
