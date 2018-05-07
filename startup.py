@@ -45,14 +45,14 @@ for i in range(1,3):
     totalGenreNumVerses = [{} for i in range(len(GENRES))]
     genreNums = [0 for i in range(len(GENRES))]
     allGenreLyrics = [[] for i in range(len(GENRES))]
-    totalAccuracy = 0
+    totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
     ngramLen = i+1
     songs = load(folder, GENRES)
 
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
-    for i in range(1):
+    for i in range(2):
         featureMap = {}
         try:
             total = 0
@@ -116,12 +116,13 @@ for i in range(1,3):
 
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
-            print(totalGenreNumVerses[1][4])
-            freqDists = BM.computeComplicatedFreqDist(featureMap, GENRES)
 
-
+            freqDists = BM.computeFreqDist(featureMap, GENRES)
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
-            totalAccuracy += accuracy
+
+            for i in range(len(accuracy)):
+                instanceAcc = accuracy[i]
+                totalAccuracy[i] += instanceAcc
             iterations += 1
         except Exception as e:
 
@@ -150,8 +151,11 @@ for i in range(1,3):
 
     confMatrix = BM.getConfMatrix()
     BM.displayPerformanceInterpretation(confMatrix, GENRES)
-    avgAccuracy  = totalAccuracy /iterations
-    print(avgAccuracy)
+    for i in range(len(totalAccuracy)):
+        print("The results of bayes number ", i )
+        acc = totalAccuracy[i]
+        avgAccuracy  = acc /iterations
+        print(avgAccuracy)
 
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
