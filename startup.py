@@ -39,12 +39,15 @@ iterations = 0
 
 #load songs variable with 500 Song objects, using random cluster sampling
 for i in range(1,3):
+    numGenres = len(GENRES)
     iterations = 0
-    counts = [0 for i in range(len(GENRES))]
-    totalGenreLyrics = [[] for i in range(len(GENRES))]
-    totalGenreNumVerses = [{} for i in range(len(GENRES))]
-    genreNums = [0 for i in range(len(GENRES))]
-    allGenreLyrics = [[] for i in range(len(GENRES))]
+    counts = [0 for i in range(numGenres)]
+    totalGenreLyrics = [[] for i in range(numGenres)]
+    totalGenreNumVerses = [{} for i in range(numGenres)]
+    totalGenreNumChoruses = [{} for i in range(numGenres)]
+    totalGenreWordPerSec = [[] for i in range(numGenres)]
+    genreNums = [0 for i in range(numGenres)]
+    allGenreLyrics = [[] for i in range(numGenres)]
     totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
     ngramLen = i+1
@@ -101,6 +104,11 @@ for i in range(1,3):
                         except Exception as e:
                             totalGenreNumVerses[i][s.numVerses] = 1
 
+                        try:
+                            totalGenreNumChoruses[i][s.numChoruses] += 1
+                        except Exception as e:
+                            totalGenreNumChoruses[i][s.numChoruses] = 1
+
                         if genre in genreToSongs.keys():
                             genreToSongs[genre].append(s)
                         else:
@@ -116,8 +124,10 @@ for i in range(1,3):
 
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
+            featureMap["totalGenreNumChoruses"] = totalGenreNumChoruses
 
             freqDists = BM.computeFreqDist(featureMap, GENRES)
+
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
 
             for i in range(len(accuracy)):
