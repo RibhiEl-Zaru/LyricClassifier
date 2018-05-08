@@ -326,7 +326,6 @@ def calcFScore(beta, prec, recall):
 
 
 def compute2dSum(toCount):
-    print(toCount)
     toRet = 0
     for i in range(len(toCount)):
         for j in range(len(toCount[0])):

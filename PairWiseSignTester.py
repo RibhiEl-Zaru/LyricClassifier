@@ -7,15 +7,28 @@ alpha = .05
 
 def initialize():
     global pairs
+    global n
+    global u
     pairs = []
     n = 0
+    u = 0
 
+
+def evaluateTests():
+    global u
+    u = 0
+
+    calculateU()
+    zScore = calculateZScore()
+    pVal = getPScore(zScore)
+
+    print("N is equal to ", n)
+    print("P-value of test is ", pVal)
 
 def addPair(x, y):
     global pairs
     global n
     pairs.append((x,y))
-    print(pairs)
     n += 1
 
 
@@ -32,7 +45,8 @@ def calculateU():
 
 def calculateZScore():
     numer = u - n/2
-    denom = (u/4)**(1./2.)
+    denom = (n/4.)**(1./2.)
+    print(denom)
     zscore = numer/denom
     return zscore
 
