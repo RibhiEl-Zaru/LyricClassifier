@@ -15,8 +15,10 @@ from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
 import levelData
+
 import numLinesFreqGenerator
 import PairWiseSignTester as signTester
+import wpmBuckets
 #random.seed(50)
 
 #This file provides some basic code to get started with.
