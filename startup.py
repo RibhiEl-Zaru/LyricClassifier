@@ -15,7 +15,6 @@ from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
 import levelData
-
 import numLinesFreqGenerator
 import PairWiseSignTester as signTester
 import wpmBuckets
@@ -43,7 +42,6 @@ iterations = 0
 
 #load songs variable with 500 Song objects, using random cluster sampling
 for i in range(1,3):
-    numGenres = len(GENRES)
     iterations = 0
 
     ngramLen = i+1
@@ -56,25 +54,26 @@ for i in range(1,3):
     for i in newsongcount:
         GENRES.append(i[0])
 
-
-    counts = [0 for i in range(numGenres)]
-    totalGenreLyrics = [[] for i in range(numGenres)]
-    totalGenreNumVerses = [{} for i in range(numGenres)]
-    totalGenreNumChoruses = [{} for i in range(numGenres)]
-
-    totalGenreWordPerSec = [[] for i in range(numGenres)]
-
-
-    genreNums = [0 for i in range(numGenres)]
-    allGenreLyrics = [[] for i in range(numGenres)]
-
     totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
-
-
+    signTester.initialize()
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
-    for i in range(2):
+    for i in range(20):
+        print(i)
+
+        numGenres = len(GENRES)
+
+        counts = [0 for i in range(numGenres)]
+        totalGenreLyrics = [[] for i in range(numGenres)]
+        totalGenreNumVerses = [{} for i in range(numGenres)]
+        totalGenreNumChoruses = [{} for i in range(numGenres)]
+
+        totalGenreWordPerSec = [[] for i in range(numGenres)]
+
+
+        genreNums = [0 for i in range(numGenres)]
+        allGenreLyrics = [[] for i in range(numGenres)]
         numLinesFreqGenerator.initialize(GENRES, 10)
         featureMap = {}
         try:
@@ -208,6 +207,8 @@ for i in range(1,3):
         print(avgAccuracy)
 
     #TODO Handle the PairWiseSignTester
+
+    signTester.evaluateTests()
 
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
