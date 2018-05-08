@@ -69,6 +69,8 @@ def bucketizeScore(score):
 
     score = numer/denom
     bucketScore = int(score * bucketNum)
+    if score==1:
+        bucketScore = bucketNum-1
     return bucketScore
 
 def addLinesForGenre(numLines, index):

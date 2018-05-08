@@ -1,6 +1,7 @@
 import math
 import ngram_FreqDist
 import numLinesFreqGenerator
+import wpmBuckets
 
 truePosKey = "truePos"
 trueNegKey = "trueNeg"
@@ -27,11 +28,13 @@ def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
     numVerses = featureMap["numVerses"]
     numChoruses = featureMap["numChoruses"]
     numLines = featureMap["numLines"]
+    wpm = featureMap["WPM"]
 
     ngramFreqDists = freqMaps["ngramFreqDists"]
     numVersesFreqDists = freqMaps["numVersesFreqDists"]
     numChorusesFreqDists = freqMaps["numChorusesFreqDists"]
     numLinesFreqDists = freqMaps["numLinesFreqDists"]
+    wpmFreqDists = freqMaps["wpmFreqDists"]
 
 
     reviewWordLen = len(reviewwords)
@@ -41,6 +44,7 @@ def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
         numVersesFreqDist = numVersesFreqDists[i]
         numChorusesFreqDist = numChorusesFreqDists[i]
         numLinesFreqDist = numLinesFreqDists[i]
+        wpmFreqDist = wpmFreqDists[i]
 
         baseScore = ngramFreqDist.get(reviewwords[0], defaultprob)
         for j in range(1, reviewWordLen):
@@ -53,6 +57,7 @@ def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
         advancedScore = baseScore + numVersesFreqDist.get(numVerses, defaultprob)*reviewWordLen
         advancedScore += numChorusesFreqDist.get(numChoruses, defaultprob) * reviewWordLen
         advancedScore += numLinesFreqDist.get(numLinesFreqGenerator.bucketizeScore(numLines), defaultprob) * reviewWordLen
+        advancedScore += wpmFreqDist.get(wpmBuckets.bucketize(wpm), defaultprob) * reviewWordLen
 
         if(advancedScore > advancedHighScore):
             advancedHighScore = advancedScore
@@ -83,6 +88,13 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
         featureMap["numVerses"] = song.numVerses
         featureMap["numChoruses"] = song.numChoruses
         featureMap["numLines"] = song.numLines
+        words=[]
+        sentences = song.lyrics.rstrip().splitlines()
+        for sentence in sentences:
+            word = sentence.split()
+            words.extend(word)
+        wpm=len(words)/float(song.duration_ms)
+        featureMap["WPM"]=wpm
 
 
         results = naiveBayesWithFeatures(featureMap, genreList, freqDistLists)

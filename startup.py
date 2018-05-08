@@ -56,7 +56,6 @@ for i in range(1,3):
     for i in newsongcount:
         GENRES.append(i[0])
 
-
     counts = [0 for i in range(numGenres)]
     totalGenreLyrics = [[] for i in range(numGenres)]
     totalGenreNumVerses = [{} for i in range(numGenres)]
@@ -155,6 +154,8 @@ for i in range(1,3):
 
             freqDists = BM.computeFreqDist(featureMap, GENRES)
             numLinesFreqMap = numLinesFreqGenerator.generateFrequencyMap()
+            wpmMap = wpmBuckets.wpmBuckets(songs, GENRES, 10)
+            freqDists["wpmFreqDists"]=wpmMap
 
             freqDists["numLinesFreqDists"] = numLinesFreqMap
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
