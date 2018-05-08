@@ -16,6 +16,7 @@ import ngram_FreqDist
 import numpy as np
 import levelData
 import numLinesFreqGenerator
+import PairWiseSignTester as signTester
 #random.seed(50)
 
 #This file provides some basic code to get started with.
@@ -156,9 +157,19 @@ for i in range(1,3):
             freqDists["numLinesFreqDists"] = numLinesFreqMap
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
 
+            x = None
+            y = None
+
             for i in range(len(accuracy)):
+
                 instanceAcc = accuracy[i]
                 totalAccuracy[i] += instanceAcc
+                if(i == 0):
+                    x = instanceAcc
+                if (i == 1):
+                    y = instanceAcc
+
+            signTester.addPair(x,y)
             iterations += 1
         except Exception as e:
 
@@ -185,6 +196,7 @@ for i in range(1,3):
         #for i in range(len(percentages)):
         #    print("Data is : " + str(percentages[i])  + "% " + GENRES[i], "   with a total of  "  , counts[i])
 
+
     confMatrix = BM.getConfMatrix()
     BM.displayPerformanceInterpretation(confMatrix, GENRES)
     for i in range(len(totalAccuracy)):
@@ -192,6 +204,8 @@ for i in range(1,3):
         acc = totalAccuracy[i]
         avgAccuracy  = acc /iterations
         print(avgAccuracy)
+
+    #TODO Handle the PairWiseSignTester
 
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
