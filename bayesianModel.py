@@ -1,12 +1,12 @@
 import math
-
+import ngram_FreqDist
+import numLinesFreqGenerator
 
 truePosKey = "truePos"
 trueNegKey = "trueNeg"
 falsePosKey = "falsePos"
 falseNegKey = "falseNeg"
 numIterationsKey = "numIters"
-import ngram_FreqDist
 
 confMatrixes = [{}, {}] # First map is basic bayes, second map is bayes with features
 ## FUNCTION USING NAIVE BAYES PROBS TO PREDICT SENTIMENT
@@ -26,10 +26,13 @@ def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
     reviewwords = featureMap["reviewwords"]
     numVerses = featureMap["numVerses"]
     numChoruses = featureMap["numChoruses"]
+    numLines = featureMap["numLines"]
 
     ngramFreqDists = freqMaps["ngramFreqDists"]
     numVersesFreqDists = freqMaps["numVersesFreqDists"]
     numChorusesFreqDists = freqMaps["numChorusesFreqDists"]
+    numLinesFreqDists = freqMaps["numLinesFreqDists"]
+
 
     reviewWordLen = len(reviewwords)
 
@@ -37,17 +40,19 @@ def naiveBayesWithFeatures(featureMap, genreList, freqMaps):
         ngramFreqDist = ngramFreqDists[i]
         numVersesFreqDist = numVersesFreqDists[i]
         numChorusesFreqDist = numChorusesFreqDists[i]
+        numLinesFreqDist = numLinesFreqDists[i]
 
         baseScore = ngramFreqDist.get(reviewwords[0], defaultprob)
         for j in range(1, reviewWordLen):
             baseScore += ngramFreqDist.get(reviewwords[j], defaultprob)
 
-        advancedScore = baseScore + numVersesFreqDist.get(numVerses, defaultprob)*reviewWordLen
-        advancedScore += numChorusesFreqDist.get(numChoruses, defaultprob) * reviewWordLen
-
         if(baseScore > baseHighScore):
             baseHighScore = baseScore
             baseReturn = genreList[i]
+
+        advancedScore = baseScore + numVersesFreqDist.get(numVerses, defaultprob)*reviewWordLen
+        advancedScore += numChorusesFreqDist.get(numChoruses, defaultprob) * reviewWordLen
+        advancedScore += numLinesFreqDist.get(numLinesFreqGenerator.bucketizeScore(numLines), defaultprob) * reviewWordLen
 
         if(advancedScore > advancedHighScore):
             advancedHighScore = advancedScore
@@ -77,6 +82,8 @@ def naiveBayesSentimentAnalysis(testData, genreList, freqDistLists, ngramLen):
         featureMap["reviewwords"] = reviewWords
         featureMap["numVerses"] = song.numVerses
         featureMap["numChoruses"] = song.numChoruses
+        featureMap["numLines"] = song.numLines
+
 
         results = naiveBayesWithFeatures(featureMap, genreList, freqDistLists)
 

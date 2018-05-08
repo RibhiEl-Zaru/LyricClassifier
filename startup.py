@@ -15,7 +15,11 @@ from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
 import levelData
+<<<<<<< HEAD
 import wpmBuckets
+=======
+import numLinesFreqGenerator
+>>>>>>> a515a37301a820d63086c033f153f9ed28e02dcc
 #random.seed(50)
 
 #This file provides some basic code to get started with.
@@ -52,6 +56,7 @@ for i in range(1,3):
     GENRES = []
     for i in newsongcount:
         GENRES.append(i[0])
+<<<<<<< HEAD
     print(GENRES)
 
     counts = [0 for i in range(len(GENRES))]
@@ -59,12 +64,18 @@ for i in range(1,3):
     totalGenreNumVerses = [{} for i in range(len(GENRES))]
     genreNums = [0 for i in range(len(GENRES))]
     allGenreLyrics = [[] for i in range(len(GENRES))]
+=======
+
+>>>>>>> a515a37301a820d63086c033f153f9ed28e02dcc
 
     counts = [0 for i in range(numGenres)]
     totalGenreLyrics = [[] for i in range(numGenres)]
     totalGenreNumVerses = [{} for i in range(numGenres)]
     totalGenreNumChoruses = [{} for i in range(numGenres)]
+
     totalGenreWordPerSec = [[] for i in range(numGenres)]
+
+
     genreNums = [0 for i in range(numGenres)]
     allGenreLyrics = [[] for i in range(numGenres)]
 
@@ -75,6 +86,7 @@ for i in range(1,3):
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
     for i in range(2):
+        numLinesFreqGenerator.initialize(GENRES, 10)
         featureMap = {}
         try:
             total = 0
@@ -94,26 +106,26 @@ for i in range(1,3):
                 #print(sentences)
                 #Build the sentences that we'd need to add
                 toExtend = []
-                tokSentences = []
+                nGrams = []
                 for sentence in sentences:
-                    tokSentence = ngram_FreqDist.ngrams(sentence, ngramLen)
-                    for word in tokSentence:
-                        allGenreLyrics[index].append(word)
-                    tokSentences.append(tokSentence)
+                    nGram = ngram_FreqDist.ngrams(sentence, ngramLen)
+                    nGrams.append(nGram)
                     words = sentence.split()
                     toExtend.append(list(set([w for w in words if w not in stops])))
 
                 #print("    toExtend    ")
                 #print(toExtend)
 
-                # To extend is the list of lists with all words tokenized
-                allTokSentences.extend(tokSentences)
+                # To extend is the list of lists with all words tokenize
                 allWords = []
                 for sentList in toExtend:
                     allWords.extend(sentList)
 
-                s.setTokenizedSentences(tokSentences)
+                s.setnGrams(nGrams)
                 # Populate respective genre buckets
+
+                numLinesFreqGenerator.addLineNum(s.numLines) #Add numlines to list containing all totalLine Numbers
+
                 for i in range(len(GENRES)):
                     genre = GENRES[i]
 
@@ -132,6 +144,9 @@ for i in range(1,3):
                             genreToSongs[genre].append(s)
                         else:
                             genreToSongs[genre] = [s]
+
+                        numLinesFreqGenerator.addLinesForGenre(s.numLines, i) #Add numLines for respective genre
+
                         counts[i]+= 1 #Update how many of genre X songs there are
                         numGenres += 1 #Keeps track of number of genres for each song
 
@@ -141,12 +156,18 @@ for i in range(1,3):
 
                         genreNums[numGenres] += 1 # Updates how many songs have numGenres amount of genres, as many/all songs have multiple genres according to data.
 
+
             featureMap["totalGenreLyrics"] = totalGenreLyrics
             featureMap["totalGenreNumVerses"] = totalGenreNumVerses
             featureMap["totalGenreNumChoruses"] = totalGenreNumChoruses
 
-            freqDists = BM.computeFreqDist(featureMap, GENRES)
 
+
+
+            freqDists = BM.computeFreqDist(featureMap, GENRES)
+            numLinesFreqMap = numLinesFreqGenerator.generateFrequencyMap()
+
+            freqDists["numLinesFreqDists"] = numLinesFreqMap
             accuracy = BM.naiveBayesSentimentAnalysis(testSet, GENRES, freqDists, ngramLen)
 
             for i in range(len(accuracy)):
@@ -199,9 +220,28 @@ def calcTotal(genreToSongs):
         tot += len(genreToSongs[key])
     return tot
 
-'''
-'''
+
+allGenreLyrics = [[] for i in range(len(GENRES))]
+songs = load(folder, GENRES)
+trainingSet, testSet = train.train_test(songs, GENRES)
+allTokSentences = []
+for s in trainingSet:
+    tokSentences = []
+    sentences = s.lyrics.rstrip().splitlines()
+    songGenre = ''.join(s.genres)
+    index = GENRES.index(songGenre)
+    for sentence in sentences:
+        tokSentence = word_tokenize(sentence)
+        if len(tokSentence) == 0:
+            continue
+        tokSentences.append(tokSentence)
+        for word in tokSentence:
+            allGenreLyrics[index].append(word)
+    s.setTokenizedSentences(tokSentences)
+    allTokSentences.extend(tokSentences)
+
 model = gensim.models.Word2Vec(allTokSentences, size=100, window=5, min_count=1, workers=4)
+##model.save("word2vecModel.model")
 allGenreVectors = [[] for i in range(len(GENRES))]
 for i in range(len(GENRES)):
     vector = np.zeros((100,), dtype=float)
@@ -211,18 +251,27 @@ for i in range(len(GENRES)):
     divisor = np.full((100,), len(allGenreLyrics[i]))
     vector = np.divide(vector,divisor)
     allGenreVectors[i] = vector
-print(allGenreVectors[0])
 
-total=0
-right=0
-for s in trainingSet:
+correct = 0.0
+total = 0.0
+for s in testSet:
+    sentences = s.lyrics.rstrip().splitlines()
+    songGenre = ''.join(s.genres)
+    index = GENRES.index(songGenre)
+    tokSentences = []
+    for sentence in sentences:
+        tokSentence = word_tokenize(sentence)
+        tokSentences.append(tokSentence)
+    s.setTokenizedSentences(tokSentences)
+
     songVector = s.vectorizeSong(model)
-    #print(songVector)
+    correctGenre = s.genres[0]
     answer = s.returnVectorGenre(songVector, allGenreVectors)
-    if(answer==s.genres[0]):
-        right+=1
-    total+=1
-print(right/float(total))
+
+    if str(correctGenre) == answer:
+        correct += 1
+    total += 1
+print ("Percent correct is: " , correct/total)
 
 
 ##print(model.wv['love'])
