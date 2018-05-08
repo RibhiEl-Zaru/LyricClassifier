@@ -15,6 +15,7 @@ from ngram_FreqDist import *
 import ngram_FreqDist
 import numpy as np
 import levelData
+import wpmBuckets
 #random.seed(50)
 
 #This file provides some basic code to get started with.
@@ -41,7 +42,6 @@ iterations = 0
 for i in range(1,3):
     numGenres = len(GENRES)
     iterations = 0
-<<<<<<< HEAD
 
     ngramLen = i+1
     songs = load(folder, GENRES)
@@ -59,7 +59,7 @@ for i in range(1,3):
     totalGenreNumVerses = [{} for i in range(len(GENRES))]
     genreNums = [0 for i in range(len(GENRES))]
     allGenreLyrics = [[] for i in range(len(GENRES))]
-=======
+
     counts = [0 for i in range(numGenres)]
     totalGenreLyrics = [[] for i in range(numGenres)]
     totalGenreNumVerses = [{} for i in range(numGenres)]
@@ -67,7 +67,7 @@ for i in range(1,3):
     totalGenreWordPerSec = [[] for i in range(numGenres)]
     genreNums = [0 for i in range(numGenres)]
     allGenreLyrics = [[] for i in range(numGenres)]
->>>>>>> efba85befb30f4fd7c69e9384c72275b6e4b363a
+
     totalAccuracy = [0 for i in range(len(BM.getConfMatrix()))]
 
 
