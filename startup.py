@@ -1,11 +1,8 @@
 import song
 from nltk.corpus import stopwords
 import loaddata
-#import wordCloudGenerator as wcg
+import wordCloudGenerator as wcg
 from loadsongs import *
-from classifier import *
-from nHotEncoder import *
-from preProcessingUtil import *
 import math
 import bayesianModel as BM
 import spotifyclient
@@ -41,12 +38,12 @@ iterations = 0
 #loaddata.loadDataFromAlbums(loaddata.getLarkin1000(folder), folder, folder + '.txt', folder + '.log')
 
 #load songs variable with 500 Song objects, using random cluster sampling
-for i in range(1,3):
+for i in range(0,3):
     iterations = 0
 
     ngramLen = i+1
     songs = load(folder, GENRES)
-    songs=levelData.levelData(songs, 215, GENRES)
+    songs=levelData.levelData(songs, 130, GENRES)
     newsongcount=levelData.songCount(songs, GENRES)
     print(newsongcount)
 
@@ -59,7 +56,7 @@ for i in range(1,3):
     signTester.initialize()
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
-    for i in range(10):
+    for i in range(50):
         print(i)
 
         numGenres = len(GENRES)
@@ -199,7 +196,6 @@ for i in range(1,3):
         #for i in range(len(percentages)):
         #    print("Data is : " + str(percentages[i])  + "% " + GENRES[i], "   with a total of  "  , counts[i])
 
-
     confMatrix = BM.getConfMatrix()
     BM.displayPerformanceInterpretation(confMatrix, GENRES)
     for i in range(len(totalAccuracy)):
@@ -211,7 +207,6 @@ for i in range(1,3):
     #TODO Handle the PairWiseSignTester
 
     signTester.evaluateTests()
-
 
 binomialProbab = generateRandomProbability(genreNums, GENRES)
 print("True random success rate is: ", round(binomialProbab,4))
@@ -245,6 +240,7 @@ for s in trainingSet:
     s.setTokenizedSentences(tokSentences)
     allTokSentences.extend(tokSentences)
 
+wcg.saveWordClouds(GENRES, allGenreLyrics)
 model = gensim.models.Word2Vec(allTokSentences, size=100, window=5, min_count=1, workers=4)
 ##model.save("word2vecModel.model")
 allGenreVectors = [[] for i in range(len(GENRES))]
