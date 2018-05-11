@@ -11,6 +11,7 @@ import song
 import os
 import os
 import glob
+import hdf5_getters
 
 #Better name for this file would be loadRS500.py. Oh well.
 
@@ -49,6 +50,25 @@ def getLarkin1000(folder):
         albums[title] = items[0]
     return albums
 
+def getMillionSubset():
+#Returns a dictionary of album: artist pairs
+#from the Million Song Dataset subset available on columbia.edu
+    albums = {}
+    basedir = 'millionsubset'
+    ext = '.hd5'
+    subdir = basedir
+    for root, dirs, files in os.walk(basedir):
+        for f in files:
+            try:
+                f = os.path.join(root,f)
+                h5 = hdf5_getters.open_h5_file_read(f)
+                title = hdf5_getters.get_title(h5).decode('utf-8')
+                artist = hdf5_getters.get_artist_name(h5).decode('utf-8')
+                albums[title] = artist
+                h5.close()
+            except:
+                print('Missed a file...')
+    return albums
 
 def getAlbumDetails(album, artist):
 #Takes in an album/artist pair and returns a list of Song objects
