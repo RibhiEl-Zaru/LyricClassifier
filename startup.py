@@ -46,7 +46,7 @@ for i in range(1,3):
 
     ngramLen = i+1
     songs = load(folder, GENRES)
-    songs=levelData.levelData(songs, 215, GENRES)
+    songs=levelData.levelData(songs, 130, GENRES)
     newsongcount=levelData.songCount(songs, GENRES)
     print(newsongcount)
 
@@ -59,7 +59,7 @@ for i in range(1,3):
     signTester.initialize()
     print (ngramLen,"-gram analysis")
     BM.initializeConfusionMatrix(GENRES)
-    for i in range(10):
+    for i in range(50):
         print(i)
 
         numGenres = len(GENRES)
